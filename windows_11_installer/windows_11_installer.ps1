@@ -1,9 +1,14 @@
-# This script accomplishes:
+# Version: 0.1
+# Date: October 8, 2025
+# Description: 
 # 1. Ask the User if the need to install OpenJDK 25
 # 2. Downloading and extracting the PostgreSQL installer.
 # 3. Initializing the database cluster.
 # 4. Starting the PostgreSQL service on a specified port.
 # 5. Creating a new user with their password and granting all privileges.
+# Author:  © PWSS Org
+
+
 
 # Ask the user if they need to install OPEN JDK 25
 $installOpenJDK = Read-Host "Do you need to install OpenJDK 25? ( JDK or JRE >= 21 is needed for File-Integrity-Scanner to work (Y/N)"
