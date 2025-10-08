@@ -1,26 +1,26 @@
 # This script accomplishes:
-# 1. Ask the User if the need to install OpenJRE 21
+# 1. Ask the User if the need to install OpenJDK 25
 # 2. Downloading and extracting the PostgreSQL installer.
 # 3. Initializing the database cluster.
 # 4. Starting the PostgreSQL service on a specified port.
 # 5. Creating a new user with their password and granting all privileges.
 
-# Ask the user if they need to install OpenJRE 21
-$installOpenJRE = Read-Host "Do you need to install OpenJRE 21? (Needed for File-Integrity-Scanner to work (Y/N)"
+# Ask the user if they need to install OPEN JDK 25
+$installOpenJDK = Read-Host "Do you need to install OpenJDK 25? ( JDK or JRE >= 21 is needed for File-Integrity-Scanner to work (Y/N)"
 
-if ($installOpenJRE -eq 'Y') {
+if ($installOpenJDK -eq 'Y') {
     # Define path to the installation script
-    $installScriptPath = "windows_11_open_jre_21_installer\install_openjre_21.ps1"
+    $installScriptPath = "windows_11_open_jdk_25_installer\install_open_jdk_25.ps1"
 
     if (Test-Path $installScriptPath) {
-        Write-Output "Starting OpenJRE 21 installation..."
+        Write-Output "Starting Open JDK 25 installation..."
         & powershell -NoProfile -ExecutionPolicy Bypass -File $installScriptPath
-        Write-Output "OpenJRE 21 installation completed."
+        Write-Output "Open JDK 25 installation completed."
     } else {
         Write-Error "Installation script not found at $installScriptPath"
     }
 } else {
-    Write-Output "Skipping OpenJRE 21 installation."
+    Write-Output "Skipping Open JDK 25 installation."
 }
 
 # Continue with the rest of your main script

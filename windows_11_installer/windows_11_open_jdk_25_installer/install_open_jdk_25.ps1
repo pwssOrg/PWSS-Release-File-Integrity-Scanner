@@ -1,27 +1,18 @@
-### Instructions
-
-# 1. Open PowerShell with administrative privileges.
-# 2. Copy and paste the above script into a new file, e.g., `Install-OpenJRE.ps1`.
-# 3. Run the script by executing: .\Install-OpenJRE.ps1
-  
-
-### What the Script Does:
-
-# 1.Downloads OpenJRE 21 zip from GitHub.
-# 2. Extracts it to a specified installation path (default is C:\Program Files\Java\OpenJRE-21).
-# 3. Sets he JAVA_HOME environment variable for user scope.
+# Version: 0.1
+# Date: October 8, 2025
+# Description: Downloads OpenJDK 25 zip from GitHub.
+# Author:  © PWSS Org
 
 ### Note:
 # The script uses `Invoke-WebRequest`, which requires an internet connection.
-# Ensure that the download URL and paths are correct based on the latest OpenJRE release available at the time of use.
-# The installation path ($installationPath) can be modified as needed.
-
+# Ensure that the download URL and paths are correct based on the OpenJDK 25 release
 
 # Define constants
-$jreVersion = "21"
+$jdkVersion = "25"
 $downloadUrl =
-"https://github.com/ojdkbuild/ojdkbuild/releases/download/ojdk-21.0.2+7/ojdk-21_windows-x64_bin.zip"
-$installationPa"https://github.com/ojdkbuild/ojdkbuild/releases/download/ojdk-21.0.2+7/ojdk-21_windows-x64_bin.zip"$installationPath = "$env:ProgramFiles\Java\OpenJRE-$jreVersion"
+"https://download.java.net/java/GA/jdk25/bd75d5f9689641da8e1daabeccb5528b/36/GPL/openjdk-25_windows-x64_bin.zip"
+
+$installationPath = "$env:ProgramFiles\Java\jdk-$jdkVersion"
 
 # Function to download a file
 function Download-File {
@@ -68,8 +59,8 @@ if (-not (Test-Path -Path $installationPath)) {
     New-Item -ItemType Directory -Force -Path $installationPath
 }
 
-# Download the OpenJRE zip file
-$downloadZipPath = "$env:TEMP\OpenJRE-$jreVersion.zip"
+# Download the Open JDK zip file
+$downloadZipPath = "$env:TEMP\jdk-$jdkVersion.zip"
 Download-File -url $downloadUrl -outputPath $downloadZipPath
 
 # Extract the downloaded zip to the installation directory
@@ -84,4 +75,4 @@ Write-Output "Cleanup: Removed downloaded zip file from $downloadZipPath"
 [System.EnvironmentVariableTarget]::User)
 
 Write-Output "Installation completed successfully."
-Write-Output "OpenJRE installed at: $installationPath"
+Write-Output "JDK 25 installed at: $installationPath"
