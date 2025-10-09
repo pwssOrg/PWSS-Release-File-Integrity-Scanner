@@ -1,7 +1,7 @@
-# Version: 0.1
-# Date: October 8, 2025
-# Description: Downloads OpenJDK 25 zip from GitHub.
-# Author:  Â© PWSS Org
+# Version: 0.2
+# Date: October 10, 2025
+# Description: Downloads OpenJDK 25 zip from java.net
+# Author:  © PWSS Org
 
 ### Note:
 # The script uses `Invoke-WebRequest`, which requires an internet connection.
@@ -12,7 +12,7 @@ $jdkVersion = "25"
 $downloadUrl =
 "https://download.java.net/java/GA/jdk25/bd75d5f9689641da8e1daabeccb5528b/36/GPL/openjdk-25_windows-x64_bin.zip"
 
-$installationPath = "$env:ProgramFiles\Java\jdk-$jdkVersion"
+$installationPath = "$HOME\Java"
 
 # Function to download a file
 function Download-File {
@@ -30,7 +30,7 @@ function Download-File {
         Invoke-WebRequest -Uri $url -OutFile $outputPath -UseBasicParsing
         Write-Output "Downloaded: $url"
     } catch {
-        Write-Error "Failed to download file from $url: $_"
+        Write-Error "Failed to download file from ${url}: $_"
         exit 1
     }
 }
@@ -47,7 +47,7 @@ function Extract-Zip {
         [System.IO.Compression.ZipFile]::ExtractToDirectory($zipPath, $extractToPath)
         Write-Output "Extracted: $zipPath to $extractToPath"
     } catch {
-        Write-Error "Failed to extract zip file from $zipPath: $_"
+        Write-Error "Failed to extract zip file from ${zipPath}: $_"
         exit 1
     }
 }
@@ -71,8 +71,27 @@ Remove-Item -Force -Path $downloadZipPath
 Write-Output "Cleanup: Removed downloaded zip file from $downloadZipPath"
 
 # Set JAVA_HOME environment variable (user scope)
-[System.Environment]::SetEnvironmentVariable("JAVA_HOME", "$installationPath",
+[System.Environment]::SetEnvironmentVariable("JAVA_HOME", "$installationPath\jdk-25",
 [System.EnvironmentVariableTarget]::User)
+
+# Add entry to PATH environment variable (user scope)
+
+$newPath = "$installationPath\jdk-25\bin"
+$escapedNewPath = [regex]::Escape($newPath)
+
+
+
+# Check if the new path already exists in the PATH environment variable
+if ($env:PATH -notmatch $escapedNewPath) {
+    # Add the new path to the PATH environment variable for the current session
+    $env:PATH += ";$newPath"
+
+    # Write the updated PATH value to the user's environment variables (no admin rights required)
+    [System.Environment]::SetEnvironmentVariable("PATH", $env:PATH, "User")
+    Write-Host "New path added to PATH for current user."
+} else {
+    Write-Host "Path already exists in PATH."
+}
 
 Write-Output "Installation completed successfully."
 Write-Output "JDK 25 installed at: $installationPath"
