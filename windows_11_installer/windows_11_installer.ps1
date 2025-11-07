@@ -133,6 +133,33 @@ function Install-PostgreSQL {
 
     # Change directory to PostgreSQL binaries path
     cd "$extractPath\$pgVersion\bin"
+ 
+    # Define the source paths for the file and folder
+$sourceConfFile = "psql_files\postgresql.conf"
+$sourcePsqlFolder = "psql_files\psql"
+
+# Define destination paths based on environment variables and provided values
+$destinationConfFolder = "$extractPath\$pgVersion\data"
+
+# Ensure the destination folder for the configuration file exists
+if (-not (Test-Path -Path $destinationConfFolder)) {
+    New-Item -ItemType Directory -Force -Path $destinationConfFolder
+}
+
+# Copy the postgresql.conf file and overwrite if it exists
+Copy-Item -Path $sourceConfFile -Destination "$destinationConfFolder\postgresql.conf" -Force
+
+Write-Host "postgresql.conf copied successfully."
+
+# Define the destination path for the psql folder on C: drive
+$destinationPsqlFolder = "C:\psql"
+
+# Copy the entire psql folder to the root of C: drive, overwrite if it exists
+Copy-Item -Path $sourcePsqlFolder -Destination $destinationPsqlFolder -Recurse -Force
+
+Write-Host "psql folder copied successfully."
+
+
 
     # Initialize the database cluster with custom data directory and port
     .\initdb.exe -D "C:\postgresql\$pgVersion\data" -U $username
@@ -154,12 +181,24 @@ $username = Read-Host -Prompt "Enter PostgreSQL username"
 $password = Read-Host -AsSecureString -Prompt "Enter PostgreSQL password"
 $port = Read-Host -Prompt "Enter PostgreSQL port (default for File-Integrity Scanner is 15400). Dont change this unless instructued to do so by PWSS officials"
 
+# Persist emviroment variables across sessions
+[System.Environment]::SetEnvironmentVariable("TRUSTSTORE_FIS_GUI", "truststore password",
+[System.EnvironmentVariableTarget]::User)
+[System.Environment]::SetEnvironmentVariable("ssl_file_integrity_scanner", "sslPassword",
+[System.Environment]::User)
+[System.Environment]::SetEnvironmentVariable("INTEGRITY_HASH_DB_PASSWORD", "$password",
+[System.Environment]::User)
+[System.Environment]::SetEnvironmentVariable("INTEGRITY_HASH_DB_USER", "$username",
+[System.Environment]::User)
+
 if ([string]::IsNullOrEmpty($port)) {
     $port = 15400
 }
 
 # Install PostgreSQL with the user input
 Install-PostgreSQL -username $username -password $password -port $port
+
+
 
 # Send SQL commands to create tables (must be run after database initialization)
 .\psql.exe -U $username -d postgres -a -f $createTablesSql
