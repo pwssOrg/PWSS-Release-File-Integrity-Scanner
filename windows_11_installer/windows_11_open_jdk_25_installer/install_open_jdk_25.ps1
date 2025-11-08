@@ -1,7 +1,7 @@
 # Version: 0.2
 # Date: October 10, 2025
 # Description: Downloads OpenJDK 25 zip from java.net
-# Author:  © PWSS Org
+# Author:  Â© PWSS Org
 
 ### Note:
 # The script uses `Invoke-WebRequest`, which requires an internet connection.
@@ -93,5 +93,5 @@ if ($env:PATH -notmatch $escapedNewPath) {
     Write-Host "Path already exists in PATH."
 }
 
-Write-Output "Installation completed successfully."
+Write-Output "Java installation completed successfully."
 Write-Output "JDK 25 installed at: $installationPath"
