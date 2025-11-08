@@ -40,7 +40,7 @@ $extractPath = "$env:ProgramFiles\PostgreSQL"
 
 # Define your custom table creation SQL commands
 $createTablesSql = @"
-CREATE TABLE IF NOT EXISTS "time"(
+CREATE TABLE "time"(
 id BIGSERIAL PRIMARY KEY,
 created TIMESTAMPTZ NOT NULL,
 updated TIMESTAMPTZ NOT NULL
@@ -50,14 +50,7 @@ id BIGSERIAL PRIMARY KEY,
 notes TEXT,
 prev_notes TEXT,
 prev_prev_notes TEXT,
-time_id bigint NOT NULL REFERENCES time(id));
-CREATE TABLE file (
-    id BIGSERIAL PRIMARY KEY,
-    path TEXT NOT NULL UNIQUE,
-    basename TEXT NOT NULL,
-    directory TEXT NOT NULL,
-    size bigint NOT NULL,
-    mtime TIMESTAMPTZ NOT NULL
+time_id bigint NOT NULL REFERENCES time(id)
 );
 CREATE TABLE file (
     id BIGSERIAL PRIMARY KEY,
@@ -104,12 +97,12 @@ baseline_id bigint NOT NULL REFERENCES scan_summary(id),
 integrity_fail_id bigint NOT NULL REFERENCES scan_summary(id),
 time_id bigint NOT NULL REFERENCES time(id)
 );
-CREATE TABLE IF NOT EXISTS auth(
+CREATE TABLE auth(
 id SERIAL PRIMARY KEY,
 hash TEXT NOT NULL,
 auth_time bigint REFERENCES "time"(id) NOT NULL
 );
-CREATE TABLE IF NOT EXISTS "user_"(
+CREATE TABLE "user_"(
 id SERIAL PRIMARY KEY,
 username TEXT UNIQUE NOT NULL,
 auth_id int REFERENCES auth(id) NOT NULL,
@@ -179,20 +172,20 @@ Write-Host "psql folder copied successfully."
 # Prompt user for input
 $username = Read-Host -Prompt "Enter PostgreSQL username"
 $password = Read-Host -AsSecureString -Prompt "Enter PostgreSQL password"
-$port = Read-Host -Prompt "Enter PostgreSQL port (default for File-Integrity Scanner is 15400). Dont change this unless instructued to do so by PWSS officials"
+$port = Read-Host -Prompt "Enter PostgreSQL port (default for File-Integrity Scanner is 26556). Dont change this unless instructued to do so by PWSS officials"
 
 # Persist emviroment variables across sessions
-[System.Environment]::SetEnvironmentVariable("TRUSTSTORE_FIS_GUI", "truststore password",
+[System.Environment]::SetEnvironmentVariable("TRUSTSTORE_FIS_GUI", "truststore password", 
 [System.EnvironmentVariableTarget]::User)
-[System.Environment]::SetEnvironmentVariable("ssl_file_integrity_scanner", "sslPassword",
-[System.Environment]::User)
-[System.Environment]::SetEnvironmentVariable("INTEGRITY_HASH_DB_PASSWORD", "$password",
-[System.Environment]::User)
-[System.Environment]::SetEnvironmentVariable("INTEGRITY_HASH_DB_USER", "$username",
-[System.Environment]::User)
+[System.Environment]::SetEnvironmentVariable("ssl_file_integrity_scanner", "sslPassword", 
+[System.EnvironmentVariableTarget]::User)
+[System.Environment]::SetEnvironmentVariable("INTEGRITY_HASH_DB_PASSWORD", "$password", 
+[System.EnvironmentVariableTarget]::User)
+[System.Environment]::SetEnvironmentVariable("INTEGRITY_HASH_DB_USER", "$username", 
+[System.EnvironmentVariableTarget]::User)
 
 if ([string]::IsNullOrEmpty($port)) {
-    $port = 15400
+    $port = 26556
 }
 
 # Install PostgreSQL with the user input
