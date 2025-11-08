@@ -169,9 +169,53 @@ Write-Host "psql folder copied successfully."
     Write-Output "PostgreSQL installed successfully!"
 }
 
+function Validate-Password {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$password
+    )
+
+    # Check if password is at least 8 characters long
+    if ($password.Length -lt 8) {
+        return $false
+    }
+
+    # Check if password contains at least one digit
+    if (-not ($password -match '\d')) {
+        return $false
+    }
+
+    # Check if password contains at least one special character
+    if (-not ($password -match '[^a-zA-Z0-9]')) {
+        return $false
+    }
+
+    return $true
+}
+
 # Prompt user for input
 $username = Read-Host -Prompt "Enter PostgreSQL username"
-$password = Read-Host -AsSecureString -Prompt "Enter PostgreSQL password"
+
+
+$securePassword = ""
+while ($true) {
+    $plainPassword = Read-Host -AsSecureString -Prompt "Enter PostgreSQL password"
+    # Convert secure string to plain text for validation
+    $bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($plainPassword)
+    $plainTextPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
+
+    if (Validate-Password -password $plainTextPassword) {
+        # Use the original secure string for further processing
+        $securePassword = ConvertTo-SecureString $plainTextPassword -AsPlainText -Force
+        break
+    } else {
+        Write-Host "Password must be at least 8 characters long, contain at least one digit, and include a special
+character."
+    }
+}
+Write-Host "Valid password provided!"
+
+
 $port = Read-Host -Prompt "Enter PostgreSQL port (default for File-Integrity Scanner is 26556). Dont change this unless instructued to do so by PWSS officials"
 
 # Persist emviroment variables across sessions
@@ -179,7 +223,7 @@ $port = Read-Host -Prompt "Enter PostgreSQL port (default for File-Integrity Sca
 [System.EnvironmentVariableTarget]::User)
 [System.Environment]::SetEnvironmentVariable("ssl_file_integrity_scanner", "sslPassword", 
 [System.EnvironmentVariableTarget]::User)
-[System.Environment]::SetEnvironmentVariable("INTEGRITY_HASH_DB_PASSWORD", "$password", 
+[System.Environment]::SetEnvironmentVariable("INTEGRITY_HASH_DB_PASSWORD", "$plainTextPassword", 
 [System.EnvironmentVariableTarget]::User)
 [System.Environment]::SetEnvironmentVariable("INTEGRITY_HASH_DB_USER", "$username", 
 [System.EnvironmentVariableTarget]::User)
@@ -189,7 +233,7 @@ if ([string]::IsNullOrEmpty($port)) {
 }
 
 # Install PostgreSQL with the user input
-Install-PostgreSQL -username $username -password $password -port $port
+Install-PostgreSQL -username $username -password $plainTextPassword -port $port
 
 
 
