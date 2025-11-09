@@ -124,47 +124,48 @@ function Install-PostgreSQL {
     # Unzip the downloaded file to ProgramFiles\PostgreSQL
     Expand-Archive -LiteralPath $downloadPath -DestinationPath "$extractPath\$pgVersion"
 
-    # Change directory to PostgreSQL binaries path
-    cd "$extractPath\$pgVersion\bin"
- 
-    # Define the source paths for the file and folder
-$sourceConfFile = "psql_files\postgresql.conf"
-$sourcePsqlFolder = "psql_files\psql"
+    # Define destination of psql folder relative
+    $sourcePsqlFolder = "psql_files\psql"
 
-# Define destination paths based on environment variables and provided values
-$destinationConfFolder = "$extractPath\$pgVersion\data"
+    # Define destination paths based on environment variables and provided values
+    $destinationDataFolder = "$extractPath\$pgVersion\pgsql\data"
 
-# Ensure the destination folder for the configuration file exists
-if (-not (Test-Path -Path $destinationConfFolder)) {
-    New-Item -ItemType Directory -Force -Path $destinationConfFolder
-}
+    # Define the destination path for the psql folder on C: drive
+    $destinationPsqlFolder = "C:\psql"
 
-# Copy the postgresql.conf file and overwrite if it exists
-Copy-Item -Path $sourceConfFile -Destination "$destinationConfFolder\postgresql.conf" -Force
+    # Copy the entire psql folder to the root of C: drive, overwrite if it exists
+    Copy-Item -Path $sourcePsqlFolder -Destination $destinationPsqlFolder -Recurse -Force
 
-Write-Host "postgresql.conf copied successfully."
+    Write-Host "psql folder copied successfully."
 
-# Define the destination path for the psql folder on C: drive
-$destinationPsqlFolder = "C:\psql"
-
-# Copy the entire psql folder to the root of C: drive, overwrite if it exists
-Copy-Item -Path $sourcePsqlFolder -Destination $destinationPsqlFolder -Recurse -Force
-
-Write-Host "psql folder copied successfully."
-
-
+    # Define destination of bin path
+    $destinationBinPath = "$extractPath\$pgVersion\pgsql\bin"
 
     # Initialize the database cluster with custom data directory and port
-    .\initdb.exe -D "C:\postgresql\$pgVersion\data" -U $username
+    & "$destinationBinPath\initdb.exe" -D $destinationDataFolder -U $username
+
+    # Define the source paths for the file and folder
+    $sourceConfFile = "psql_files\postgresql.conf"
+    $sourcePsqlFolder = "psql_files\psql"
+
+    # Ensure the destination folder for the configuration file exists
+    if (-not (Test-Path -Path $destinationDataFolder)) {
+        New-Item -ItemType Directory -Force -Path $destinationDataFolder
+    }
+
+    # Copy the postgresql.conf file and overwrite if it exists
+    Copy-Item -Path $sourceConfFile -Destination "$destinationDataFolder\postgresql.conf" -Force
+
+    Write-Host "postgresql.conf copied successfully."
 
     # Start the PostgreSQL service on custom port
-    .\pg_ctl.exe run -D "C:\postgresql\$pgVersion\data" -l "C:\postgresql\$pgVersion\server.log" -w -p $port
+    & "$destinationBinPath\pg_ctl.exe" run -D $destinationDataFolder -l $destinationDataFolder -o -p $port
 
     # Create a new user and set password
-    .\psql.exe -U postgres -c "CREATE USER $username WITH PASSWORD '$password';"
+    & "$destinationBinPath\psql.exe" -U postgres -c "CREATE USER $username WITH PASSWORD '$password';" -p $port
 
     # Grant all privileges to the newly created user on database
-    .\psql.exe -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE postgres TO $username;"
+    & "$destinationBinPath\psql.exe" -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE postgres TO $username;" -p $port
 
     Write-Output "PostgreSQL installed successfully!"
 }
