@@ -170,7 +170,7 @@ function Install-PostgreSQL {
     & "$destinationBinPath\pg_ctl.exe" start -D $destinationDataFolder -l "$destinationDataFolder\logfile.txt" -o "-p $port"
 
     # Create database for file integrity hash
-    & "$destinationBinPath\psql.exe" -p "$port" -U "$username" -d postgres -c "CREATE DATABASE integrity_hash;"
+    & "$destinationBinPath\psql.exe" -p $port -U $username -d postgres -c "CREATE DATABASE integrity_hash;"
 
     # Grant all privileges to the newly created user on database
     & "$destinationBinPath\psql.exe" -p $port -U $username -d postgres -c "GRANT ALL PRIVILEGES ON DATABASE integrity_hash TO $username;"
