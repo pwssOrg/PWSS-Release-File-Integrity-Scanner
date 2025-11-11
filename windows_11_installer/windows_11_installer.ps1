@@ -1,5 +1,5 @@
-# Version: 0.1
-# Date: October 8, 2025
+# Version: 0.2
+# Date: November 11, 2025
 # Description: 
 # 1. Ask the User if the need to install OpenJDK 25
 # 2. Downloading and extracting the PostgreSQL installer.
@@ -36,7 +36,9 @@ Write-Output "Continuing with the main install script..."
 $pgVersion = "17.6"
 $installerUrl = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259681"
 $downloadPath = "$env:TEMP\postgresql-$pgVersion-latest-windows-x64-binaries.zip"
-$extractPath = "$env:ProgramFiles\PostgreSQL"
+$psqlTempPath = "$env:TEMP\PostgreSQL"
+$psqlFinalPath = "$env:ProgramFiles\PostgreSQL"
+$psqlBinPath = "C:\Program Files\PostgreSQL\$pgVersion\pgsql\bin"
 
 # Define your custom table creation SQL commands
 $createTablesSql = @"
@@ -122,13 +124,13 @@ function Install-PostgreSQL {
     Invoke-WebRequest -Uri $installerUrl -OutFile $downloadPath
 
     # Unzip the downloaded file to ProgramFiles\PostgreSQL
-    Expand-Archive -LiteralPath $downloadPath -DestinationPath "$extractPath\$pgVersion"
+    Expand-Archive -LiteralPath $downloadPath -DestinationPath "$psqlTempPath\$pgVersion"
 
     # Define destination of psql folder relative
     $sourcePsqlFolder = "psql_files\psql"
 
     # Define destination paths based on environment variables and provided values
-    $destinationDataFolder = "$extractPath\$pgVersion\pgsql\data"
+    $destinationDataFolder = "$psqlTempPath\$pgVersion\pgsql\data"
 
     # Define the destination path for the psql folder on C: drive
     $destinationPsqlFolder = "C:\psql"
@@ -138,11 +140,14 @@ function Install-PostgreSQL {
 
     Write-Host "psql folder copied successfully."
 
-    # Define destination of bin path
-    $destinationBinPath = "$extractPath\$pgVersion\pgsql\bin"
+    # Define destination of bin path (temporary before move)
+    $destinationBinPathTemp = "$psqlTempPath\$pgVersion\pgsql\bin"
+
+    # Define destination of bin path (final, after move to program files)
+    $destinationBinPath = "$psqlFinalPath\$pgVersion\pgsql\bin"
 
     # Initialize the database cluster with custom data directory and port
-    & "$destinationBinPath\initdb.exe" -D $destinationDataFolder -U $username
+    & "$destinationBinPathTemp\initdb.exe" -D $destinationDataFolder -U $username
 
     # Define the source paths for the file and folder
     $sourceConfFile = "psql_files\postgresql.conf"
@@ -158,14 +163,17 @@ function Install-PostgreSQL {
 
     Write-Host "postgresql.conf copied successfully."
 
-    # Start the PostgreSQL service on custom port
-    & "$destinationBinPath\pg_ctl.exe" run -D $destinationDataFolder -l $destinationDataFolder -o -p $port
+    # Move temp location of PostgreSQL to Program files
+    Copy-Item -Path $psqlTempPath -Destination $psqlFinalPath -Recurse -Force
 
-    # Create a new user and set password
-    & "$destinationBinPath\psql.exe" -U postgres -c "CREATE USER $username WITH PASSWORD '$password';" -p $port
+    # Start the PostgreSQL service on custom port
+    & "$destinationBinPath\pg_ctl.exe" start -D $destinationDataFolder -l "$destinationDataFolder\logfile.txt" -o "-p $port"
+
+    # Create database for file integrity hash
+    & "$destinationBinPath\psql.exe" -p $port -U $username -d postgres -c "CREATE DATABASE integrity_hash;"
 
     # Grant all privileges to the newly created user on database
-    & "$destinationBinPath\psql.exe" -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE postgres TO $username;" -p $port
+    & "$destinationBinPath\psql.exe" -p $port -U $username -d postgres -c "GRANT ALL PRIVILEGES ON DATABASE integrity_hash TO $username;"
 
     Write-Output "PostgreSQL installed successfully!"
 }
@@ -194,6 +202,23 @@ function Validate-Password {
     return $true
 }
 
+function Remove-TempFolder {
+    param (
+        [string]$folderName
+    )
+ 
+    # Define the path to the folder in AppData Local Temp
+    $path = Join-Path -Path $env:LOCALAPPDATA\Temp -ChildPath $folderName
+ 
+    # Delete the folder if it exists
+    if (Test-Path $path) {
+        Remove-Item -Path $path -Recurse -Force
+        Write-Host "Deleted folder: $path"
+    } else {
+        Write-Host "Folder does not exist: $path"
+    }
+}
+
 # Prompt user for input
 $username = Read-Host -Prompt "Enter PostgreSQL username"
 
@@ -220,9 +245,9 @@ Write-Host "Valid password provided!"
 $port = Read-Host -Prompt "Enter PostgreSQL port (default for File-Integrity Scanner is 26556). Dont change this unless instructued to do so by PWSS officials"
 
 # Persist emviroment variables across sessions
-[System.Environment]::SetEnvironmentVariable("TRUSTSTORE_FIS_GUI", "truststore password", 
+[System.Environment]::SetEnvironmentVariable("TRUSTSTORE_FIS_GUI", "truststore_placeholder", 
 [System.EnvironmentVariableTarget]::User)
-[System.Environment]::SetEnvironmentVariable("ssl_file_integrity_scanner", "sslPassword", 
+[System.Environment]::SetEnvironmentVariable("ssl_file_integrity_scanner", "ssl_placeholder", 
 [System.EnvironmentVariableTarget]::User)
 [System.Environment]::SetEnvironmentVariable("INTEGRITY_HASH_DB_PASSWORD", "$plainTextPassword", 
 [System.EnvironmentVariableTarget]::User)
@@ -236,11 +261,18 @@ if ([string]::IsNullOrEmpty($port)) {
 # Install PostgreSQL with the user input
 Install-PostgreSQL -username $username -password $plainTextPassword -port $port
 
-
-
 # Send SQL commands to create tables (must be run after database initialization)
-.\psql.exe -U $username -d postgres -a -f $createTablesSql
+& "$psqlBinPath\psql.exe" -p $port -U $username -d integrity_hash -a -f $createTablesSql
 
+# Change the user's password using psql command
+& "$psqlBinPath\psql.exe" -p $port -U $username -c "ALTER USER $username WITH PASSWORD $plainTextPassword;"
+Write-Host "Password for user $username changed successfully."
+
+# Cleanup temp folder
+Remove-TempFolder -folderName "PostgreSQL"
+Remove-TempFolder -folderName "postgresql-$pgVersion-latest-windows-x64-binaries.zip"
+
+Write-Output "Postgres started on port $port and the temporary installation files are cleaned up"
 
 # Before running this script:
 # 1. Make sure PowerShell is running as an administrator.
