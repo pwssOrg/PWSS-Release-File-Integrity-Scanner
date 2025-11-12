@@ -1,11 +1,14 @@
-# Version: 0.2
-# Date: October 10, 2025
+# Version: 0.3
+# Date: November 12, 2025
 # Description: Downloads OpenJDK 25 zip from java.net
 # Author:  © PWSS Org
 
 ### Note:
 # The script uses `Invoke-WebRequest`, which requires an internet connection.
 # Ensure that the download URL and paths are correct based on the OpenJDK 25 release
+
+
+. .\..\..\verify_integrity\verify_integrity.ps1
 
 # Define constants
 $jdkVersion = "25"
@@ -29,6 +32,21 @@ function Download-File {
     try {
         Invoke-WebRequest -Uri $url -OutFile $outputPath -UseBasicParsing
         Write-Output "Downloaded: $url"
+
+	
+
+$expectedSha256OpenJdk25="85BCC178461E2CB3C549AB9CA9DFA73AFD54C09A175D6510D0884071867137D3"
+$openjdk25FileName = "openjdk-25_windows-x64_bin.zip"
+
+if (Verify-SHA256 -FilePath $outputPath -ExpectedHash $expectedSha256OpenJdk25) {
+    Write-Host -ForegroundColor Green "The file ($openjdk25FileName) hash matches the expected SHA256."
+} else {
+    Write-Host -ForegroundColor Red "The file ($openjdk25FileName) hash does NOT match the expected SHA256."
+    Contact-Message
+    exit
+
+}
+
     } catch {
         Write-Error "Failed to download file from ${url}: $_"
         exit 1

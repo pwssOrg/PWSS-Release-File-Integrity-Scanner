@@ -9,6 +9,33 @@
 # Author:  © PWSS Org
 
 
+$hashVerifyIntegrity = (Get-FileHash -Algorithm "SHA256" .\..\verify_integrity\verify_integrity.ps1).Hash
+if($hashVerifyIntegrity -eq "FEF0BEE337EA4658699F62C69BF536DCBF22415F9688F0E11B6A4F3DC1110BD1"){
+
+Write-Host -ForegroundColor Green "The file (verify_integrity.ps1) hash matches the expected SHA256."
+
+}
+
+else {
+    Write-Host -ForegroundColor Red "The file (verify_integrity.ps1) hash does NOT match the expected SHA256."
+    exit
+}
+
+
+. .\..\verify_integrity\verify_integrity.ps1
+
+$installOpenJdk25Script = ".\windows_11_open_jdk_25_installer\install_open_jdk_25.ps1"
+$expectedSha256installOpenJdk25Script = "E8FC9185D54BDBEE2D03EBA31893C9BF04555A34D108EEE43572E336174E6208"
+
+if (Verify-SHA256 -FilePath $installOpenJdk25Script -ExpectedHash $expectedSha256installOpenJdk25Script) {
+    Write-Host -ForegroundColor Green "The file (install_open_jdk_25.ps1) hash matches the expected SHA256."
+} else {
+    Write-Host -ForegroundColor Red "The file (install_open_jdk_25.ps1) hash does NOT match the expected SHA256."
+    Contact-Message
+    exit
+}
+
+
 
 # Ask the user if they need to install OPEN JDK 25
 $installOpenJDK = Read-Host "Do you need to install OpenJDK 25? ( JDK or JRE >= 21 is needed for File-Integrity-Scanner to work (Y/N)"
@@ -37,8 +64,8 @@ $pgVersion = "17.6"
 $installerUrl = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259681"
 $downloadPath = "$env:TEMP\postgresql-$pgVersion-latest-windows-x64-binaries.zip"
 $psqlTempPath = "$env:TEMP\PostgreSQL"
-$psqlFinalPath = "$env:ProgramFiles\PostgreSQL"
-$psqlBinPath = "C:\Program Files\PostgreSQL\$pgVersion\pgsql\bin"
+$psqlFinalPath = "$env:ProgramFiles\Fis_PostgreSQL"
+$psqlBinPath = "C:\Program Files\Fis_PostgreSQL\$pgVersion\pgsql\bin"
 
 
 # Function to download and extract installer
@@ -50,6 +77,17 @@ function Install-PostgreSQL {
 
     # Download the PostgreSQL zip file from official website
     Invoke-WebRequest -Uri $installerUrl -OutFile $downloadPath
+
+$postgresqlZipFileName = "postgresql-17.6-1-windows-x64-binaries.zip"
+$expectedSha256PostgresqlZipFile = "D378882ABD001A186735ACD6F6BA716BCA6CCD192E800412D4FD15ED25376B3E"
+
+if (Verify-SHA256 -FilePath $downloadPath -ExpectedHash $expectedSha256PostgresqlZipFile) {
+    Write-Host -ForegroundColor Green "The file ($postgresqlZipFileName) hash matches the expected SHA256."
+} else {
+    Write-Host -ForegroundColor Red "The file ($postgresqlZipFileName) hash does NOT match the expected SHA256."
+    Contact-Message
+    exit
+}
 
     # Unzip the downloaded file to ProgramFiles\PostgreSQL
     Expand-Archive -LiteralPath $downloadPath -DestinationPath "$psqlTempPath\$pgVersion"
@@ -150,6 +188,7 @@ function Remove-TempFolder {
         Write-Host "Folder does not exist: $path"
     }
 }
+
 
 # Prompt user for input
 $username = Read-Host -Prompt "Enter PostgreSQL username"
