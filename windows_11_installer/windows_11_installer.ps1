@@ -10,9 +10,9 @@
 
 
 $hashVerifyIntegrity = (Get-FileHash -Algorithm "SHA256" .\..\verify_integrity\verify_integrity.ps1).Hash
-if($hashVerifyIntegrity -eq "FEF0BEE337EA4658699F62C69BF536DCBF22415F9688F0E11B6A4F3DC1110BD1"){
+if ($hashVerifyIntegrity -eq "FEF0BEE337EA4658699F62C69BF536DCBF22415F9688F0E11B6A4F3DC1110BD1") {
 
-Write-Host -ForegroundColor Green "The file (verify_integrity.ps1) hash matches the expected SHA256."
+    Write-Host -ForegroundColor Green "The file (verify_integrity.ps1) hash matches the expected SHA256."
 
 }
 
@@ -25,11 +25,12 @@ else {
 . .\..\verify_integrity\verify_integrity.ps1
 
 $installOpenJdk25Script = ".\windows_11_open_jdk_25_installer\install_open_jdk_25.ps1"
-$expectedSha256installOpenJdk25Script = "E8FC9185D54BDBEE2D03EBA31893C9BF04555A34D108EEE43572E336174E6208"
+$expectedSha256installOpenJdk25Script = "5068850E691F51978305CEA6D0953C98D84CB9EA50563A363F87BAAEA15031C1"
 
 if (Verify-SHA256 -FilePath $installOpenJdk25Script -ExpectedHash $expectedSha256installOpenJdk25Script) {
     Write-Host -ForegroundColor Green "The file (install_open_jdk_25.ps1) hash matches the expected SHA256."
-} else {
+}
+else {
     Write-Host -ForegroundColor Red "The file (install_open_jdk_25.ps1) hash does NOT match the expected SHA256."
     Contact-Message
     exit
@@ -48,10 +49,12 @@ if ($installOpenJDK -eq 'Y') {
         Write-Output "Starting Open JDK 25 installation..."
         & powershell -NoProfile -ExecutionPolicy Bypass -File $installScriptPath
         Write-Output "Open JDK 25 installation completed."
-    } else {
+    }
+    else {
         Write-Error "Installation script not found at $installScriptPath"
     }
-} else {
+}
+else {
     Write-Output "Skipping Open JDK 25 installation."
 }
 
@@ -64,8 +67,8 @@ $pgVersion = "17.6"
 $installerUrl = "https://sbp.enterprisedb.com/getfile.jsp?fileid=1259681"
 $downloadPath = "$env:TEMP\postgresql-$pgVersion-latest-windows-x64-binaries.zip"
 $psqlTempPath = "$env:TEMP\PostgreSQL"
-$psqlFinalPath = "$env:ProgramFiles\Fis_PostgreSQL"
-$psqlBinPath = "C:\Program Files\Fis_PostgreSQL\$pgVersion\pgsql\bin"
+$psqlFinalPath = "C:\Fis_PostgreSQL"
+$psqlBinPath = "C:\Fis_PostgreSQL\$pgVersion\pgsql\bin"
 
 
 # Function to download and extract installer
@@ -78,16 +81,17 @@ function Install-PostgreSQL {
     # Download the PostgreSQL zip file from official website
     Invoke-WebRequest -Uri $installerUrl -OutFile $downloadPath
 
-$postgresqlZipFileName = "postgresql-17.6-1-windows-x64-binaries.zip"
-$expectedSha256PostgresqlZipFile = "D378882ABD001A186735ACD6F6BA716BCA6CCD192E800412D4FD15ED25376B3E"
+    $postgresqlZipFileName = "postgresql-17.6-1-windows-x64-binaries.zip"
+    $expectedSha256PostgresqlZipFile = "D378882ABD001A186735ACD6F6BA716BCA6CCD192E800412D4FD15ED25376B3E"
 
-if (Verify-SHA256 -FilePath $downloadPath -ExpectedHash $expectedSha256PostgresqlZipFile) {
-    Write-Host -ForegroundColor Green "The file ($postgresqlZipFileName) hash matches the expected SHA256."
-} else {
-    Write-Host -ForegroundColor Red "The file ($postgresqlZipFileName) hash does NOT match the expected SHA256."
-    Contact-Message
-    exit
-}
+    if (Verify-SHA256 -FilePath $downloadPath -ExpectedHash $expectedSha256PostgresqlZipFile) {
+        Write-Host -ForegroundColor Green "The file ($postgresqlZipFileName) hash matches the expected SHA256."
+    }
+    else {
+        Write-Host -ForegroundColor Red "The file ($postgresqlZipFileName) hash does NOT match the expected SHA256."
+        Contact-Message
+        exit
+    }
 
     # Unzip the downloaded file to ProgramFiles\PostgreSQL
     Expand-Archive -LiteralPath $downloadPath -DestinationPath "$psqlTempPath\$pgVersion"
@@ -134,10 +138,10 @@ if (Verify-SHA256 -FilePath $downloadPath -ExpectedHash $expectedSha256Postgresq
 
     # Start the PostgreSQL service on custom port
     & "$destinationBinPath\pg_ctl.exe" start `
-    -D "`"$destinationDataFolder`"" `
-    -l "`"$destinationDataFolder\logfile.txt`"" `
-    -o "-p $port" `
-    -w
+        -D "`"$destinationDataFolder`"" `
+        -l "`"$destinationDataFolder\logfile.txt`"" `
+        -o "-p $port" `
+        -w
 
     # Create database for file integrity hash
     & "$destinationBinPath\psql.exe" -p $port -U $username -d postgres -c "CREATE DATABASE integrity_hash;"
@@ -150,7 +154,7 @@ if (Verify-SHA256 -FilePath $downloadPath -ExpectedHash $expectedSha256Postgresq
 
 function Validate-Password {
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$password
     )
 
@@ -184,7 +188,8 @@ function Remove-TempFolder {
     if (Test-Path $path) {
         Remove-Item -Path $path -Recurse -Force
         Write-Host "Deleted folder: $path"
-    } else {
+    }
+    else {
         Write-Host "Folder does not exist: $path"
     }
 }
@@ -205,7 +210,8 @@ while ($true) {
         # Use the original secure string for further processing
         $securePassword = ConvertTo-SecureString $plainTextPassword -AsPlainText -Force
         break
-    } else {
+    }
+    else {
         Write-Host "Password must be at least 8 characters long, contain at least one digit, and include a special
 character."
     }
@@ -217,13 +223,13 @@ $port = Read-Host -Prompt "Enter PostgreSQL port (default for File-Integrity Sca
 
 # Persist emviroment variables across sessions
 [System.Environment]::SetEnvironmentVariable("TRUSTSTORE_FIS_GUI", "truststore_placeholder", 
-[System.EnvironmentVariableTarget]::User)
+    [System.EnvironmentVariableTarget]::User)
 [System.Environment]::SetEnvironmentVariable("ssl_file_integrity_scanner", "ssl_placeholder", 
-[System.EnvironmentVariableTarget]::User)
+    [System.EnvironmentVariableTarget]::User)
 [System.Environment]::SetEnvironmentVariable("INTEGRITY_HASH_DB_PASSWORD", "$plainTextPassword", 
-[System.EnvironmentVariableTarget]::User)
+    [System.EnvironmentVariableTarget]::User)
 [System.Environment]::SetEnvironmentVariable("INTEGRITY_HASH_DB_USER", "$username", 
-[System.EnvironmentVariableTarget]::User)
+    [System.EnvironmentVariableTarget]::User)
 
 if ([string]::IsNullOrEmpty($port)) {
     $port = 26556
