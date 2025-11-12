@@ -8,7 +8,7 @@
 # Ensure that the download URL and paths are correct based on the OpenJDK 25 release
 
 
-. .\..\..\verify_integrity\verify_integrity.ps1
+. .\..\verify_integrity\verify_integrity.ps1
 
 # Define constants
 $jdkVersion = "25"
