@@ -95,7 +95,11 @@ function Install-PostgreSQL {
     Copy-Item -Path $psqlTempPath -Destination $psqlFinalPath -Recurse -Force
 
     # Start the PostgreSQL service on custom port
-    & "$destinationBinPath\pg_ctl.exe" start -D $destinationDataFolder -l "$destinationDataFolder\logfile.txt" -o "-p $port"
+    & "$destinationBinPath\pg_ctl.exe" start `
+    -D "`"$destinationDataFolder`"" `
+    -l "`"$destinationDataFolder\logfile.txt`"" `
+    -o "-p $port" `
+    -w
 
     # Create database for file integrity hash
     & "$destinationBinPath\psql.exe" -p $port -U $username -d postgres -c "CREATE DATABASE integrity_hash;"
@@ -190,7 +194,9 @@ if ([string]::IsNullOrEmpty($port)) {
 Install-PostgreSQL -username $username -port $port
 
 # Change the user's password using psql command
-& "$psqlBinPath\psql.exe" -p $port -U $username -c "ALTER USER $username WITH PASSWORD $plainTextPassword;"
+$escapedPassword = $plainTextPassword -replace "'", "''"
+$sql = "ALTER USER $username WITH PASSWORD '$escapedPassword';"
+& "$psqlBinPath\psql.exe" -p $port -U $username -c $sql
 Write-Host "Password for user $username changed successfully."
 
 # Send SQL commands to create tables (must be run after database initialization)
