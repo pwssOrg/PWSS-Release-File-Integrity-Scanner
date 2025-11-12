@@ -1,5 +1,5 @@
-# Version: 0.2
-# Date: November 11, 2025
+# Version: 0.3
+# Date: November 12, 2025
 # Description: 
 # 1. Ask the User if the need to install OpenJDK 25
 # 2. Downloading and extracting the PostgreSQL installer.
@@ -40,77 +40,6 @@ $psqlTempPath = "$env:TEMP\PostgreSQL"
 $psqlFinalPath = "$env:ProgramFiles\PostgreSQL"
 $psqlBinPath = "C:\Program Files\PostgreSQL\$pgVersion\pgsql\bin"
 
-# Define your custom table creation SQL commands
-$createTablesSql = @"
-CREATE TABLE "time"(
-id BIGSERIAL PRIMARY KEY,
-created TIMESTAMPTZ NOT NULL,
-updated TIMESTAMPTZ NOT NULL
-);
-CREATE TABLE note (
-id BIGSERIAL PRIMARY KEY,
-notes TEXT,
-prev_notes TEXT,
-prev_prev_notes TEXT,
-time_id bigint NOT NULL REFERENCES time(id)
-);
-CREATE TABLE file (
-    id BIGSERIAL PRIMARY KEY,
-    path TEXT NOT NULL UNIQUE,
-    basename TEXT NOT NULL,
-    directory TEXT NOT NULL,
-    size bigint NOT NULL,
-    mtime TIMESTAMPTZ NOT NULL
-);
-CREATE TABLE checksum (
-    id BIGSERIAL PRIMARY KEY,
-    file_id bigint NOT NULL REFERENCES file(id),
-    checksum_sha256 TEXT NOT NULL,
-    checksum_sha3 TEXT NOT NULL,
-    checksum_blake_2b TEXT NOT NULL
-);
-CREATE TABLE monitored_directory (
-    id SERIAL PRIMARY KEY,
-    path TEXT NOT NULL UNIQUE,
-    is_active BOOLEAN NOT NULL DEFAULT TRUE,
-    time_id bigint NOT NULL REFERENCES time(id),
-    last_scanned TIMESTAMPTZ,
-    note_id bigint NOT NULL REFERENCES note(id),
-    baseline_established BOOLEAN NOT NULL DEFAULT FALSE,
-    include_subdirectories BOOLEAN NOT NULL DEFAULT TRUE
-);
-CREATE TABLE scan (
-    id SERIAL PRIMARY KEY,
-    scan_time_id bigint NOT NULL REFERENCES time(id),
-    status TEXT NOT NULL,
-    note_id bigint NOT NULL REFERENCES note(id),
-    monitored_directory_id INTEGER NOT NULL REFERENCES monitored_directory(id),
-    is_baseline_scan BOOLEAN NOT NULL
-);
-CREATE TABLE scan_summary (
-    id BIGSERIAL PRIMARY KEY,
-    scan_id INTEGER NOT NULL REFERENCES scan(id),
-    file_id bigint NOT NULL REFERENCES file(id),
-    checksum_id bigint NOT NULL REFERENCES checksum(id)
-);
-CREATE TABLE diff (
-id BIGSERIAL PRIMARY KEY,
-baseline_id bigint NOT NULL REFERENCES scan_summary(id),
-integrity_fail_id bigint NOT NULL REFERENCES scan_summary(id),
-time_id bigint NOT NULL REFERENCES time(id)
-);
-CREATE TABLE auth(
-id SERIAL PRIMARY KEY,
-hash TEXT NOT NULL,
-auth_time bigint REFERENCES "time"(id) NOT NULL
-);
-CREATE TABLE "user_"(
-id SERIAL PRIMARY KEY,
-username TEXT UNIQUE NOT NULL,
-auth_id int REFERENCES auth(id) NOT NULL,
-user_time bigint REFERENCES "time"(id) NOT NULL
-);
-"@
 
 # Function to download and extract installer
 function Install-PostgreSQL {
@@ -262,7 +191,9 @@ if ([string]::IsNullOrEmpty($port)) {
 Install-PostgreSQL -username $username -password $plainTextPassword -port $port
 
 # Send SQL commands to create tables (must be run after database initialization)
-& "$psqlBinPath\psql.exe" -p $port -U $username -d integrity_hash -a -f $createTablesSql
+. .\tables\insert_tables.ps1
+insert-tables -psqlBinPath "$psqlBinPath\psql.exe"
+
 
 # Change the user's password using psql command
 & "$psqlBinPath\psql.exe" -p $port -U $username -c "ALTER USER $username WITH PASSWORD $plainTextPassword;"
