@@ -45,7 +45,6 @@ $psqlBinPath = "C:\Program Files\PostgreSQL\$pgVersion\pgsql\bin"
 function Install-PostgreSQL {
     param (
         [string]$username,
-        [string]$password,
         [int]$port
     )
 
@@ -188,16 +187,17 @@ if ([string]::IsNullOrEmpty($port)) {
 }
 
 # Install PostgreSQL with the user input
-Install-PostgreSQL -username $username -password $plainTextPassword -port $port
+Install-PostgreSQL -username $username -port $port
+
+# Change the user's password using psql command
+& "$psqlBinPath\psql.exe" -p $port -U $username -c "ALTER USER $username WITH PASSWORD $plainTextPassword;"
+Write-Host "Password for user $username changed successfully."
 
 # Send SQL commands to create tables (must be run after database initialization)
 . .\tables\insert_tables.ps1
 insert-tables -psqlBinPath "$psqlBinPath\psql.exe"
 
 
-# Change the user's password using psql command
-& "$psqlBinPath\psql.exe" -p $port -U $username -c "ALTER USER $username WITH PASSWORD $plainTextPassword;"
-Write-Host "Password for user $username changed successfully."
 
 # Cleanup temp folder
 Remove-TempFolder -folderName "PostgreSQL"
