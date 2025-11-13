@@ -205,7 +205,7 @@ function Start-DB-If-Not-Running {
     if ($null -eq $portInUse) {
         Write-Host "Nothing is running on port 26556. Starting the process..."
         # Start the PostgreSQL service on custom port
-        & "$destinationBinPath\pg_ctl.exe" start `
+        & "$psqlBinPath\pg_ctl.exe" start `
             -D "`"$psqlDataPath`"" `
             -l "`"$psqlDataPath\logfile.txt`"" `
             -o "-p $port" `
