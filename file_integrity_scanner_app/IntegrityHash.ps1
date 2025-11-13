@@ -12,6 +12,7 @@ function Start-DB-If-Not-Running {
         -D "`"$env:FIS_DATA`"" `
         -l "`"$env:FIS_DATA\logfile.txt`"" `
         -o "-p 26556" `
+        -Wait
     }
 }
 
