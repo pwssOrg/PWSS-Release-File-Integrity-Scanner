@@ -242,7 +242,7 @@ Write-Host -ForegroundColor DarkCyan "The PostgreSQL port for Integrity Hash dat
 $port = 26556
 
 
-# Persist emviroment variables across sessions
+# Persist environment variables across sessions
 [System.Environment]::SetEnvironmentVariable("TRUSTSTORE_FIS_GUI", "placeholder_truststore_fis_gui", 
     [System.EnvironmentVariableTarget]::User)
 [System.Environment]::SetEnvironmentVariable("ssl_file_integrity_scanner", "placeholder_ssl_fis", 
