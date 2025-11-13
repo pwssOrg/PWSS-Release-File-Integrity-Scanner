@@ -25,7 +25,7 @@ else {
 . .\..\verify_integrity\verify_integrity.ps1
 
 $installOpenJdk25Script = ".\windows_11_open_jdk_25_installer\install_open_jdk_25.ps1"
-$expectedSha256InstallOpenJdk25Script = "B4CF46AC06361341BE570D160D0D7BB8A04EE9C2ED93D5A7789816AC4C0D3A3E"
+$expectedSha256InstallOpenJdk25Script = "87B083078DE111990C944605AA07A739504E9EBF2303E7ACE5FF1CAC97EBEB47"
 
 if (Verify-SHA256 -FilePath $installOpenJdk25Script -ExpectedHash $expectedSha256InstallOpenJdk25Script) {
     Write-Host -ForegroundColor Green "The file (install_open_jdk_25.ps1) hash matches the expected SHA256."

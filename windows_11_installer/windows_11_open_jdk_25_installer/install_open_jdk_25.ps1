@@ -35,7 +35,7 @@ function Download-File {
 
 	
 
-$expectedSha256OpenJdk25="87B083078DE111990C944605AA07A739504E9EBF2303E7ACE5FF1CAC97EBEB47"
+$expectedSha256OpenJdk25="85BCC178461E2CB3C549AB9CA9DFA73AFD54C09A175D6510D0884071867137D3"
 $openjdk25FileName = "openjdk-25_windows-x64_bin.zip"
 
 if (Verify-SHA256 -FilePath $outputPath -ExpectedHash $expectedSha256OpenJdk25) {
