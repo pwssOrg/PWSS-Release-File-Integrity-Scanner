@@ -1,6 +1,6 @@
 # Author:  © PWSS Org
-# Date: November 12, 2025
-# Version: 1.1
+# Date: November 13, 2025
+# Version: 1.2
 
 
 function insert-tables {
@@ -104,24 +104,32 @@ Set-Content -Path $tempFilePath -Value $createTablesSql
 
 try {
     # Create environment variables with PGPASSWORD set for psql command
-    $envVars = @{
-        "PGPASSWORD" = $password
-    }
-
+    $env:PGPASSWORD = $password
+ 
     # Create the command string
-    $commandArgs = " -U $dbUser -d $dbName -f $tempFilePath -p 26556"
-
-    Start-Process -NoNewWindow -FilePath $psqlBinPath `
+    $commandArgs = "-U $dbUser -d $dbName -f `"$tempFilePath`" -p 26556"
+ 
+    # Run psql with Start-Process (without - Environment, works in PowerShell 5)
+    $process = Start-Process -NoNewWindow -FilePath $psqlBinPath `
         -ArgumentList $commandArgs `
-        -Environment $envVars `
-        -Wait
-
-} finally {
-    # Clean up the temporary file
-    Remove-Item -Path $tempFilePath
+        -Wait -PassThru
+ 
+    # Check exit code
+    if ($process.ExitCode -ne 0) {
+        Write-Error "psql returned exit code $($process.ExitCode)"
+    }
+ 
 }
-
-# Clear PGPASSWORD environment variable after the command execution is done
-$env:PGPASSWORD = ""
+ 
+finally {
+  # Clear PGPASSWORD environment variable after the command execution is done
+   $env:PGPASSWORD = ""
+ 
+    # Clear temporary file
+    if (Test-Path $tempFilePath) {
+        Remove-Item -Path $tempFilePath -Force
+    }
+ 
+}
 
 }

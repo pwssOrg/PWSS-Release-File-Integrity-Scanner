@@ -37,7 +37,7 @@ else {
 }
 
 $insertTablesScript = ".\tables\insert_tables.ps1"
-$expectedSha256InsertTablesScript = "36CA2E8E5C3CF20D95D103F9475B6BB79C9E74B3B6E9497E36EF52B4D449C5B1"
+$expectedSha256InsertTablesScript = "9EB2483447C54D30F3201C40BF3FFC2D125779DFD88D8EF3043472BBB165ED3A"
 
 if (Verify-SHA256 -FilePath $insertTablesScript -ExpectedHash $expectedSha256InsertTablesScript) {
     Write-Host -ForegroundColor Green "The file (insert_tables.ps1) hash matches the expected SHA256."
@@ -81,6 +81,7 @@ $downloadPath = "$env:TEMP\postgresql-$pgVersion-latest-windows-x64-binaries.zip
 $psqlTempPath = "$env:TEMP\PostgreSQL"
 $psqlFinalPath = "C:\Fis_PostgreSQL"
 $psqlBinPath = "C:\Fis_PostgreSQL\$pgVersion\pgsql\bin"
+$psqlDataPath = "C:\Fis_PostgreSQL\$pgVersion\pgsql\data"
 
 
 # Function to download and extract installer
@@ -101,19 +102,19 @@ function Install-PostgreSQL {
     }
     else {
         Write-Host -ForegroundColor Red "The file ($postgresqlZipFileName) hash does NOT match the expected SHA256."
-    	Remove-Item -Path $downloadPath -Force -Confirm:$false
-	Contact-Message
+        Remove-Item -Path $downloadPath -Force -Confirm:$false
+        Contact-Message
         exit
     }
 
     # Unzip the downloaded file to ProgramFiles\PostgreSQL
     Expand-Archive -LiteralPath $downloadPath -DestinationPath "$psqlTempPath\$pgVersion"
 
+    # Move temp location of PostgreSQL to Program files
+    Copy-Item -Path $psqlTempPath -Destination $psqlFinalPath -Recurse -Force
+
     # Define destination of psql folder relative
     $sourcePsqlFolder = "psql_files\psql"
-
-    # Define destination paths based on environment variables and provided values
-    $destinationDataFolder = "$psqlTempPath\$pgVersion\pgsql\data"
 
     # Define the destination path for the psql folder on C: drive
     $destinationPsqlFolder = "C:\psql"
@@ -123,44 +124,35 @@ function Install-PostgreSQL {
 
     Write-Host "psql folder copied successfully."
 
-    # Define destination of bin path (temporary before move)
-    $destinationBinPathTemp = "$psqlTempPath\$pgVersion\pgsql\bin"
-
-    # Define destination of bin path (final, after move to program files)
-    $destinationBinPath = "$psqlFinalPath\$pgVersion\pgsql\bin"
-
     # Initialize the database cluster with custom data directory and port
-    & "$destinationBinPathTemp\initdb.exe" -D $destinationDataFolder -U $username
+    & "$psqlBinPath\initdb.exe" -D $psqlDataPath -U $username
 
     # Define the source paths for the file and folder
     $sourceConfFile = "psql_files\postgresql.conf"
     $sourcePsqlFolder = "psql_files\psql"
 
     # Ensure the destination folder for the configuration file exists
-    if (-not (Test-Path -Path $destinationDataFolder)) {
-        New-Item -ItemType Directory -Force -Path $destinationDataFolder
+    if (-not (Test-Path -Path $psqlDataPath)) {
+        New-Item -ItemType Directory -Force -Path $psqlDataPath
     }
 
     # Copy the postgresql.conf file and overwrite if it exists
-    Copy-Item -Path $sourceConfFile -Destination "$destinationDataFolder\postgresql.conf" -Force
+    Copy-Item -Path $sourceConfFile -Destination "$psqlDataPath\postgresql.conf" -Force
 
     Write-Host "postgresql.conf copied successfully."
 
-    # Move temp location of PostgreSQL to Program files
-    Copy-Item -Path $psqlTempPath -Destination $psqlFinalPath -Recurse -Force
-
     # Start the PostgreSQL service on custom port
-    & "$destinationBinPath\pg_ctl.exe" start `
-        -D "`"$destinationDataFolder`"" `
-        -l "`"$destinationDataFolder\logfile.txt`"" `
+    & "$psqlBinPath\pg_ctl.exe" start `
+        -D "`"$psqlDataPath`"" `
+        -l "`"$psqlDataPath\logfile.txt`"" `
         -o "-p $port" `
         -w
 
     # Create database for file integrity hash
-    & "$destinationBinPath\psql.exe" -p $port -U $username -d postgres -c "CREATE DATABASE integrity_hash;"
+    & "$psqlBinPath\psql.exe" -p $port -U $username -d postgres -c "CREATE DATABASE integrity_hash;"
 
     # Grant all privileges to the newly created user on database
-    & "$destinationBinPath\psql.exe" -p $port -U $username -d postgres -c "GRANT ALL PRIVILEGES ON DATABASE integrity_hash TO $username;"
+    & "$psqlBinPath\psql.exe" -p $port -U $username -d postgres -c "GRANT ALL PRIVILEGES ON DATABASE integrity_hash TO $username;"
 
     Write-Output "PostgreSQL installed successfully!"
 }
@@ -207,6 +199,20 @@ function Remove-TempFolder {
     }
 }
 
+function Start-DB-If-Not-Running {
+    $portInUse = netstat -ano | Select-String ":26556"
+
+    if ($null -eq $portInUse) {
+        Write-Host "Nothing is running on port 26556. Starting the process..."
+        # Start the PostgreSQL service on custom port
+        & "$destinationBinPath\pg_ctl.exe" start `
+            -D "`"$psqlDataPath`"" `
+            -l "`"$psqlDataPath\logfile.txt`"" `
+            -o "-p $port" `
+            -w
+    }
+}
+
 
 # Prompt user for input
 $username = Read-Host -Prompt "Enter PostgreSQL username"
@@ -237,21 +243,22 @@ $port = 26556
 
 
 # Persist emviroment variables across sessions
-[System.Environment]::SetEnvironmentVariable("TRUSTSTORE_FIS_GUI", "truststore_placeholder", 
-[System.EnvironmentVariableTarget]::User)
-[System.Environment]::SetEnvironmentVariable("ssl_file_integrity_scanner", "ssl_placeholder", 
+[System.Environment]::SetEnvironmentVariable("TRUSTSTORE_FIS_GUI", "placeholder_truststore_fis_gui", 
+    [System.EnvironmentVariableTarget]::User)
+[System.Environment]::SetEnvironmentVariable("ssl_file_integrity_scanner", "placeholder_ssl_fis", 
     [System.EnvironmentVariableTarget]::User)
 [System.Environment]::SetEnvironmentVariable("INTEGRITY_HASH_DB_PASSWORD", "$plainTextPassword", 
     [System.EnvironmentVariableTarget]::User)
 [System.Environment]::SetEnvironmentVariable("INTEGRITY_HASH_DB_USER", "$username", 
     [System.EnvironmentVariableTarget]::User)
-
+[System.Environment]::SetEnvironmentVariable("FIS_PSQL", "$psqlBinPath\pg_ctl.exe", 
+    [System.EnvironmentVariableTarget]::User)
+[System.Environment]::SetEnvironmentVariable("FIS_DATA", $psqlDataPath, 
+    [System.EnvironmentVariableTarget]::User)
 
 
 # Install PostgreSQL with the user input
 Install-PostgreSQL -username $username -port $port
-
-
 
 # Change the user's password using psql command
 $escapedPassword = $plainTextPassword -replace "'", "''"
@@ -259,14 +266,12 @@ $sql = "ALTER USER $username WITH PASSWORD '$escapedPassword';"
 & "$psqlBinPath\psql.exe" -p $port -U $username -d postgres -c $sql
 Write-Host "Password for user $username changed successfully."
 
-
+Start-DB-If-Not-Running
 
 # Send SQL commands to create tables (must be run after database initialization)
 
 . .\tables\insert_tables.ps1
 insert-tables -psqlBinPath "$psqlBinPath\psql.exe" -dbUser $username -password $escapedPassword
-
-
 
 # Cleanup temp folder
 Remove-TempFolder -folderName "PostgreSQL"
