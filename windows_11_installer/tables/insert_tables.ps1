@@ -1,15 +1,24 @@
 # Author:  © PWSS Org
 # Date: November 12, 2025
-# Version: 1
+# Version: 1.1
 
 
 function insert-tables {
     param (
-        [string]$psqlBinPath
+
+	[Parameter(Mandatory=$true)]
+        [string]$psqlBinPath,
+	
+	[Parameter(Mandatory=$true)]
+        [string]$dbUser,
+
+        [Parameter(Mandatory=$true)]
+        [string]$password
+
     )
 
 $dbName = "integrity_hash"
-$dbUser = $env:INTEGRITY_HASH_DB_USER
+
 
 # SQL script to create tables
 $createTablesSql = @"
@@ -96,7 +105,7 @@ Set-Content -Path $tempFilePath -Value $createTablesSql
 try {
     # Create environment variables with PGPASSWORD set for psql command
     $envVars = @{
-        "PGPASSWORD" = "$env:INTEGRITY_HASH_DB_PASSWORD"
+        "PGPASSWORD" = $password
     }
 
     # Create the command string

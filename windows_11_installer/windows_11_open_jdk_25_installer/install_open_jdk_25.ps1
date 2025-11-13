@@ -1,4 +1,4 @@
-# Version: 0.3
+# Version: 0.4
 # Date: November 12, 2025
 # Description: Downloads OpenJDK 25 zip from java.net
 # Author:  © PWSS Org
@@ -42,6 +42,7 @@ if (Verify-SHA256 -FilePath $outputPath -ExpectedHash $expectedSha256OpenJdk25) 
     Write-Host -ForegroundColor Green "The file ($openjdk25FileName) hash matches the expected SHA256."
 } else {
     Write-Host -ForegroundColor Red "The file ($openjdk25FileName) hash does NOT match the expected SHA256."
+    Remove-Item -Path $downloadPath -Force -Confirm:$false
     Contact-Message
     exit
 
