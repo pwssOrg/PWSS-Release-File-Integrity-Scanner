@@ -1,5 +1,5 @@
-# Version: 0.3
-# Date: November 12, 2025
+# Version: 0.4
+# Date: November 13, 2025
 # Description: 
 # 1. Ask the User if the need to install OpenJDK 25
 # 2. Downloading and extracting the PostgreSQL installer.
@@ -25,13 +25,25 @@ else {
 . .\..\verify_integrity\verify_integrity.ps1
 
 $installOpenJdk25Script = ".\windows_11_open_jdk_25_installer\install_open_jdk_25.ps1"
-$expectedSha256installOpenJdk25Script = "5068850E691F51978305CEA6D0953C98D84CB9EA50563A363F87BAAEA15031C1"
+$expectedSha256InstallOpenJdk25Script = "B4CF46AC06361341BE570D160D0D7BB8A04EE9C2ED93D5A7789816AC4C0D3A3E"
 
-if (Verify-SHA256 -FilePath $installOpenJdk25Script -ExpectedHash $expectedSha256installOpenJdk25Script) {
+if (Verify-SHA256 -FilePath $installOpenJdk25Script -ExpectedHash $expectedSha256InstallOpenJdk25Script) {
     Write-Host -ForegroundColor Green "The file (install_open_jdk_25.ps1) hash matches the expected SHA256."
 }
 else {
     Write-Host -ForegroundColor Red "The file (install_open_jdk_25.ps1) hash does NOT match the expected SHA256."
+    Contact-Message
+    exit
+}
+
+$insertTablesScript = ".\tables\insert_tables.ps1"
+$expectedSha256InsertTablesScript = "36CA2E8E5C3CF20D95D103F9475B6BB79C9E74B3B6E9497E36EF52B4D449C5B1"
+
+if (Verify-SHA256 -FilePath $insertTablesScript -ExpectedHash $expectedSha256InsertTablesScript) {
+    Write-Host -ForegroundColor Green "The file (insert_tables.ps1) hash matches the expected SHA256."
+}
+else {
+    Write-Host -ForegroundColor Red "The file (insert_tables.ps1) hash does NOT match the expected SHA256."
     Contact-Message
     exit
 }
@@ -89,7 +101,8 @@ function Install-PostgreSQL {
     }
     else {
         Write-Host -ForegroundColor Red "The file ($postgresqlZipFileName) hash does NOT match the expected SHA256."
-        Contact-Message
+    	Remove-Item -Path $downloadPath -Force -Confirm:$false
+	Contact-Message
         exit
     }
 
@@ -219,11 +232,13 @@ character."
 Write-Host "Valid password provided!"
 
 
-$port = Read-Host -Prompt "Enter PostgreSQL port (default for File-Integrity Scanner is 26556). Dont change this unless instructued to do so by PWSS officials"
+Write-Host -ForegroundColor DarkCyan "The PostgreSQL port for Integrity Hash database is 26556. If you need to change this, contact PWSS officials at support@pwss.dev!"
+$port = 26556
+
 
 # Persist emviroment variables across sessions
 [System.Environment]::SetEnvironmentVariable("TRUSTSTORE_FIS_GUI", "truststore_placeholder", 
-    [System.EnvironmentVariableTarget]::User)
+[System.EnvironmentVariableTarget]::User)
 [System.Environment]::SetEnvironmentVariable("ssl_file_integrity_scanner", "ssl_placeholder", 
     [System.EnvironmentVariableTarget]::User)
 [System.Environment]::SetEnvironmentVariable("INTEGRITY_HASH_DB_PASSWORD", "$plainTextPassword", 
@@ -231,22 +246,25 @@ $port = Read-Host -Prompt "Enter PostgreSQL port (default for File-Integrity Sca
 [System.Environment]::SetEnvironmentVariable("INTEGRITY_HASH_DB_USER", "$username", 
     [System.EnvironmentVariableTarget]::User)
 
-if ([string]::IsNullOrEmpty($port)) {
-    $port = 26556
-}
+
 
 # Install PostgreSQL with the user input
 Install-PostgreSQL -username $username -port $port
 
+
+
 # Change the user's password using psql command
 $escapedPassword = $plainTextPassword -replace "'", "''"
 $sql = "ALTER USER $username WITH PASSWORD '$escapedPassword';"
-& "$psqlBinPath\psql.exe" -p $port -U $username -c $sql
+& "$psqlBinPath\psql.exe" -p $port -U $username -d postgres -c $sql
 Write-Host "Password for user $username changed successfully."
 
+
+
 # Send SQL commands to create tables (must be run after database initialization)
+
 . .\tables\insert_tables.ps1
-insert-tables -psqlBinPath "$psqlBinPath\psql.exe"
+insert-tables -psqlBinPath "$psqlBinPath\psql.exe" -dbUser $username -password $escapedPassword
 
 
 
