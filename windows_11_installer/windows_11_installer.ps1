@@ -1,5 +1,5 @@
-# Version: 0.5
-# Date: November 14, 2025
+# Version: 1
+# Date: November 15, 2025
 # Description: 
 # 1. Ask the User if the need to install OpenJDK 25
 # 2. Downloading and extracting the PostgreSQL installer.
@@ -121,6 +121,8 @@ function Install-PostgreSQL {
 
     # Unzip the downloaded file to ProgramFiles\PostgreSQL
     Expand-Archive -LiteralPath $downloadPath -DestinationPath "$psqlTempPath\$pgVersion"
+
+    Write-Output -ForegroundColor white  "Please wait..."
 
     # Move temp location of PostgreSQL to Program files
     Copy-Item -Path $psqlTempPath -Destination $psqlFinalPath -Recurse -Force
