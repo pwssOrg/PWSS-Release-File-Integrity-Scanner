@@ -1,6 +1,10 @@
-# Version: 1.1
-# Date: November 13, 2025
+# Version: 1.2
+# Date: November 14, 2025
 # Author:  © PWSS Org
+
+$scriptPath = $MyInvocation.MyCommand.Path
+$scriptDirectory = [System.IO.Path]::GetDirectoryName($scriptPath)
+
 
 function Start-DB-If-Not-Running {
     $portInUse = netstat -ano | Select-String ":26556"
@@ -12,11 +16,11 @@ function Start-DB-If-Not-Running {
         -D "`"$env:FIS_DATA`"" `
         -l "`"$env:FIS_DATA\logfile.txt`"" `
         -o "-p 26556" `
-        -Wait
+        -w
     }
 }
 
-$hashVerifyIntegrity = (Get-FileHash -Algorithm "SHA256" .\..\verify_integrity\verify_integrity.ps1).Hash
+$hashVerifyIntegrity = (Get-FileHash -Algorithm "SHA256" "$scriptDirectory\..\verify_integrity\verify_integrity.ps1").Hash
 if($hashVerifyIntegrity -eq "FEF0BEE337EA4658699F62C69BF536DCBF22415F9688F0E11B6A4F3DC1110BD1"){
 
 Write-Host -ForegroundColor Green "The file (verify_integrity.ps1) hash matches the expected SHA256."
@@ -29,9 +33,9 @@ else {
 }
 
 
-. .\..\verify_integrity\verify_integrity.ps1
+. "$scriptDirectory\..\verify_integrity\verify_integrity.ps1"
 
-$fileIntegrityScannerJar = ".\local_backend\File-Integrity-Scanner-1.7.jar"
+$fileIntegrityScannerJar = "$scriptDirectory\local_backend\File-Integrity-Scanner-1.7.jar"
 $expectedSha256FileIntegrityScannerJar = "489E5D3F0CBAECA0D356B19444A3DAAA67625ADCAEBA3828F6D1658A6B980CC6"
 
 if (Verify-SHA256 -FilePath $fileIntegrityScannerJar -ExpectedHash $expectedSha256FileIntegrityScannerJar) {
@@ -43,7 +47,7 @@ if (Verify-SHA256 -FilePath $fileIntegrityScannerJar -ExpectedHash $expectedSha2
 
 }
 
-$integrityHashJar = ".\frontend\integrity_hash-1.1.jar"
+$integrityHashJar = "$scriptDirectory\frontend\integrity_hash-1.1.jar"
 $expectedSha256IntegrityHashJar = "995871D5501C6E2F04E7FA6463D8FE185FDFABDF75409FB7ED386D8B679A0731"
 
 if (Verify-SHA256 -FilePath $integrityHashJar -ExpectedHash $expectedSha256IntegrityHashJar) {
@@ -62,14 +66,14 @@ Write-Host "Checking if anything is running on port 15400..."
 $portInUse = netstat -ano | Select-String ":15400"
 
 # Set the working path to the frontend folder (Integrity Hash needs to point to the correct path for app settings and options folder)
-cd frontend
+cd "$scriptDirectory\frontend"
 
 
 if ($null -eq $portInUse) {
     Write-Host "Nothing is running on port 15400. Starting the process..."
 
     
-    Start-Process -FilePath "java" -ArgumentList "-jar", ".\..\local_backend\File-Integrity-Scanner-1.7.jar" -NoNewWindow
+    Start-Process -FilePath "java" -ArgumentList "-jar", "$scriptDirectory\..\local_backend\File-Integrity-Scanner-1.7.jar" -NoNewWindow
     Write-Host "File-Integrity-Scanner started."
     java -jar .\integrity_hash-1.1.jar
     Stop-Process -Id $pid
