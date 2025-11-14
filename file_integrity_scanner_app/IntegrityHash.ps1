@@ -4,19 +4,16 @@
 
 
 if ($MyInvocation.MyCommand.Path) {
-    # Körs som .ps1
     $scriptDirectory = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Path)
 } else {
-    # Körs som exe
     $scriptDirectory = [System.AppContext]::BaseDirectory
 }
 
-# Write-Output $scriptDirectory
 
-# Byt arbetskatalog till scriptDirectory så alla relativa sökvägar funkar
+# Change the working directory to scriptDirectory so that all relative paths work
 Set-Location $scriptDirectory
 
-# (Optional) Unblocka alla anropade skript automatiskt
+
 Get-ChildItem -Path "$scriptDirectory\*.ps1" -File | Unblock-File
 
 function Start-DB-If-Not-Running {

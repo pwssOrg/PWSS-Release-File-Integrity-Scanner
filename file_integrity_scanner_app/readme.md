@@ -1,6 +1,6 @@
-# Information
+# Artifact folder
+
+Contains both BE and FE artifacts and an executable start file.
 
 
-
-Artifact folder that contains the BE and the FE Artifact along with a Util Script folder.
 

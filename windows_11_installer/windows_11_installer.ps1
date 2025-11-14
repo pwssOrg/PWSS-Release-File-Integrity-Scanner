@@ -1,5 +1,5 @@
-# Version: 0.4
-# Date: November 13, 2025
+# Version: 0.5
+# Date: November 14, 2025
 # Description: 
 # 1. Ask the User if the need to install OpenJDK 25
 # 2. Downloading and extracting the PostgreSQL installer.
@@ -37,13 +37,25 @@ else {
 }
 
 $insertTablesScript = ".\tables\insert_tables.ps1"
-$expectedSha256InsertTablesScript = "9EB2483447C54D30F3201C40BF3FFC2D125779DFD88D8EF3043472BBB165ED3A"
+$expectedSha256InsertTablesScript = "7798372AE9E2BADF146D15275C6E944729E7BAE149CD8C2CB63592B3946649EE"
 
 if (Verify-SHA256 -FilePath $insertTablesScript -ExpectedHash $expectedSha256InsertTablesScript) {
     Write-Host -ForegroundColor Green "The file (insert_tables.ps1) hash matches the expected SHA256."
 }
 else {
     Write-Host -ForegroundColor Red "The file (insert_tables.ps1) hash does NOT match the expected SHA256."
+    Contact-Message
+    exit
+}
+
+$shortcutScript = ".\util_scripts\shortcut.ps1"
+$expectedSha256ShortcutScript = "B159E12FB26F2C0AFCDB64E50E5EBABA2BB9740FD6EF7999CB3B240355A4790E"
+
+if (Verify-SHA256 -FilePath $shortcutScript -ExpectedHash $expectedSha256ShortcutScript) {
+    Write-Host -ForegroundColor Green "The file (shortcut.ps1) hash matches the expected SHA256."
+}
+else {
+    Write-Host -ForegroundColor Red "The file (shortcut.ps1) hash does NOT match the expected SHA256."
     Contact-Message
     exit
 }
@@ -277,7 +289,10 @@ insert-tables -psqlBinPath "$psqlBinPath\psql.exe" -dbUser $username -password $
 Remove-TempFolder -folderName "PostgreSQL"
 Remove-TempFolder -folderName "postgresql-$pgVersion-latest-windows-x64-binaries.zip"
 
-Write-Output "Postgres started on port $port and the temporary installation files are cleaned up"
+Write-Output "The PostgreSQL service has been initiated on port $port, and any temporary installation files have been removed."
+
+. .\util_scripts\shortcut.ps1
+Create-Shortcut
 
 # Before running this script:
 # 1. Make sure PowerShell is running as an administrator.
