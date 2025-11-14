@@ -1,6 +1,6 @@
-# Version: 1.4
-# Date: November 14, 2025
-# Author:  Â© PWSS Org
+# Version: 1.6
+# Date: November 15, 2025
+# Author:  © PWSS Org
 
 
 if ($MyInvocation.MyCommand.Path) {
@@ -29,6 +29,8 @@ function Start-DB-If-Not-Running {
         -w
     }
 }
+
+try{
 
 $hashVerifyIntegrity = (Get-FileHash -Algorithm "SHA256" "$scriptDirectory\..\verify_integrity\verify_integrity.ps1").Hash
 if($hashVerifyIntegrity -eq "FEF0BEE337EA4658699F62C69BF536DCBF22415F9688F0E11B6A4F3DC1110BD1"){
@@ -68,6 +70,15 @@ if (Verify-SHA256 -FilePath $integrityHashJar -ExpectedHash $expectedSha256Integ
     exit
 
 }
+
+} catch{
+
+
+ Write-Host -ForegroundColor Red "The Integrity hash was unable to start due to an error. Extracting hashes from artifact files is not possible"
+    exit
+
+    }
+
 
 Start-DB-If-Not-Running
 
