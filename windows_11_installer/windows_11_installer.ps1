@@ -122,7 +122,7 @@ function Install-PostgreSQL {
     # Unzip the downloaded file to ProgramFiles\PostgreSQL
     Expand-Archive -LiteralPath $downloadPath -DestinationPath "$psqlTempPath\$pgVersion"
 
-    Write-Output -ForegroundColor white  "Please wait..."
+    Write-Host "Please wait..." -ForegroundColor White
 
     # Move temp location of PostgreSQL to Program files
     Copy-Item -Path $psqlTempPath -Destination $psqlFinalPath -Recurse -Force
