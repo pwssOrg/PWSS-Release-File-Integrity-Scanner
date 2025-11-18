@@ -1,4 +1,4 @@
-# Version: 1.7
+# Version: 1.8
 # Date: November 18, 2025
 # Author:  © PWSS Org
 
@@ -58,7 +58,7 @@ if (Verify-SHA256 -FilePath $fileIntegrityScannerJar -ExpectedHash $expectedSha2
     exit
 
 }
-
+integrity_hash-1.1-jar.jar
 $integrityHashJar = "$scriptDirectory\frontend\integrity_hash-1.1.jar"
 $expectedSha256IntegrityHashJar = "74D77E5BE4BE475400A52884B5461E04FCB3FB732B982EFC1EA2D7D08A1F2CB3"
 
@@ -94,7 +94,7 @@ if ($null -eq $portInUse) {
     # Write-Host "Nothing is running on port 15400. Starting the process..."
 
     
-    Start-Process -FilePath "java" -ArgumentList "-jar", ".\..\local_backend\File-Integrity-Scanner-1.7.jar" -NoNewWindow
+    Start-Process -FilePath "java" -ArgumentList "-jar", ".\..\local_backend\File-Integrity-Scanner-1.8.1.jar" -NoNewWindow
     # Write-Host "File-Integrity-Scanner started."
     
     Start-Process -FilePath "java" `
