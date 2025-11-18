@@ -58,7 +58,7 @@ if (Verify-SHA256 -FilePath $fileIntegrityScannerJar -ExpectedHash $expectedSha2
     exit
 
 }
-integrity_hash-1.1-jar.jar
+
 $integrityHashJar = "$scriptDirectory\frontend\integrity_hash-1.1.jar"
 $expectedSha256IntegrityHashJar = "74D77E5BE4BE475400A52884B5461E04FCB3FB732B982EFC1EA2D7D08A1F2CB3"
 
