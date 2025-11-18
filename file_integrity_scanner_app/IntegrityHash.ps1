@@ -1,5 +1,5 @@
-# Version: 1.6
-# Date: November 15, 2025
+# Version: 1.7
+# Date: November 18, 2025
 # Author:  © PWSS Org
 
 
@@ -47,20 +47,20 @@ else {
 
 . "$scriptDirectory\..\verify_integrity\verify_integrity.ps1"
 
-$fileIntegrityScannerJar = "$scriptDirectory\local_backend\File-Integrity-Scanner-1.7.jar"
-$expectedSha256FileIntegrityScannerJar = "489E5D3F0CBAECA0D356B19444A3DAAA67625ADCAEBA3828F6D1658A6B980CC6"
+$fileIntegrityScannerJar = "$scriptDirectory\local_backend\File-Integrity-Scanner-1.8.1.jar"
+$expectedSha256FileIntegrityScannerJar = "9D15F2A6F89CC1C37A31DB3FCCF404ED4CAF60FABB55BC9CAAB4D97B0267293D"
 
 if (Verify-SHA256 -FilePath $fileIntegrityScannerJar -ExpectedHash $expectedSha256FileIntegrityScannerJar) {
-    # Write-Host -ForegroundColor Green "The file (File-Integrity-Scanner-1.7.jar) hash matches the expected SHA256."
+    # Write-Host -ForegroundColor Green "The file (File-Integrity-Scanner-1.8.1.jar) hash matches the expected SHA256."
 } else {
-    Write-Host -ForegroundColor Red "The file (File-Integrity-Scanner-1.7.jar) hash does NOT match the expected SHA256."
+    Write-Host -ForegroundColor Red "The file (File-Integrity-Scanner-1.8.1.jar) hash does NOT match the expected SHA256."
     Contact-Message
     exit
 
 }
 
 $integrityHashJar = "$scriptDirectory\frontend\integrity_hash-1.1.jar"
-$expectedSha256IntegrityHashJar = "995871D5501C6E2F04E7FA6463D8FE185FDFABDF75409FB7ED386D8B679A0731"
+$expectedSha256IntegrityHashJar = "74D77E5BE4BE475400A52884B5461E04FCB3FB732B982EFC1EA2D7D08A1F2CB3"
 
 if (Verify-SHA256 -FilePath $integrityHashJar -ExpectedHash $expectedSha256IntegrityHashJar) {
     # Write-Host -ForegroundColor Green "The file (integrity_hash-1.1.jar) hash matches the expected SHA256."
