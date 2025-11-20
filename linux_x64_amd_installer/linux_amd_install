@@ -1,0 +1,188 @@
+#!/bin/bash
+set -euo pipefail
+
+echo "======================================================"
+echo "              PWSS Org Automated Installer           "
+echo "======================================================"
+
+echo "======================================================"
+echo "        PostgreSQL + Java Automated Installer        "
+echo "======================================================"
+
+### --- INTERAKTIV JAVA INSTALLATION ---
+read -p "Do you want to install Java (JDK 25 or JDK 21)? [y/N]: " INSTALL_JAVA
+
+if [[ "$INSTALL_JAVA" =~ ^[Yy]$ ]]; then
+    echo "[INFO] Preparing to install Java..."
+    sudo apt update -y
+
+    if apt-cache search openjdk-25 | grep -q openjdk-25; then
+        echo "[INFO] Installing OpenJDK 25..."
+        sudo apt install -y openjdk-25-jdk
+        JAVA_VERSION=25
+    elif apt-cache search openjdk-21 | grep -q openjdk-21; then
+        echo "[INFO] Installing OpenJDK 21..."
+        sudo apt install -y openjdk-21-jdk
+        JAVA_VERSION=21
+    else
+        echo "[ERROR] Neither JDK 25 nor JDK 21 available!"
+        exit 1
+    fi
+
+    echo "[INFO] Java installation complete. Installed JDK version: $JAVA_VERSION"
+    java -version
+else
+    echo "[INFO] Skipping Java installation as per user choice."
+fi
+
+echo ""
+echo "[INFO] PostgreSQL Installation & Setup"
+
+### --- INSTALL POSTGRESQL IF NEEDED ---
+if ! command -v psql &> /dev/null; then
+    echo "[INFO] PostgreSQL not found. Installing..."
+    sudo apt update -y
+    sudo apt install -y postgresql postgresql-contrib
+fi
+
+### --- ASK USER FOR DB CREDENTIALS ---
+read -p "Enter database user: " DB_USER
+read -sp "Enter database password: " DB_PASSWORD
+echo ""
+
+DB_NAME="integrity_hash"
+PORT=26556
+
+echo "[INFO] PostgreSQL Installation & SSL Setup"
+
+# --- DETECT PG VERSION ---
+PG_VERSION=$(psql --version | awk '{print $3}' | cut -d. -f1)
+echo "[INFO] Detected PostgreSQL major version: $PG_VERSION"
+
+# --- STOP POSTGRESQL BEFORE CONFIG ---
+echo "[INFO] Stopping PostgreSQL..."
+sudo systemctl stop postgresql || true
+
+# --- COPY SSL-CONFIG FILES ---
+CONF_SRC="psql_files/postgresql.conf"
+CONF_DEST="/etc/postgresql/${PG_VERSION}/main/postgresql.conf"
+
+if [ ! -f "$CONF_SRC" ]; then
+    echo "[ERROR] Source postgresql.conf not found at $CONF_SRC"
+    exit 1
+fi
+
+echo "[INFO] Copying postgresql.conf with SSL settings..."
+sudo cp "$CONF_SRC" "$CONF_DEST"
+sudo chown postgres:postgres "$CONF_DEST"
+sudo chmod 600 "$CONF_DEST"
+
+# --- COPY CERTS AND OTHER FILES ---
+echo "[INFO] Copying psql SSL certs and scripts..."
+sudo cp -r psql_files/psql /tmp
+
+sudo mv /tmp/psql/cert/p_avocado.crt /etc/ssl/certs/
+sudo mv /tmp/psql/cert/p_avocado.key /etc/ssl/private/
+sudo chmod 600 /etc/ssl/private/p_avocado.key
+sudo chown postgres:postgres /etc/ssl/private/p_avocado.key
+
+sudo mv /tmp/psql/pass/avocado /etc/postgresql/${PG_VERSION}/main/ssl-pass.sh
+sudo chmod 700 /etc/postgresql/${PG_VERSION}/main/ssl-pass.sh
+sudo chown postgres:postgres /etc/postgresql/${PG_VERSION}/main/ssl-pass.sh
+
+# --- Replace all versionspecific paths in postgresql.conf ---
+sudo sed -i "s#/var/lib/postgresql/[0-9]\+/main#/var/lib/postgresql/${PG_VERSION}/main#g" "$CONF_DEST"
+sudo sed -i "s#/etc/postgresql/[0-9]\+/main#/etc/postgresql/${PG_VERSION}/main#g" "$CONF_DEST"
+sudo sed -i "s#/var/run/postgresql/[0-9]\+-main.pid#/var/run/postgresql/${PG_VERSION}-main.pid#g" "$CONF_DEST"
+# --- START POSTGRESQL ---
+echo "[INFO] Starting PostgreSQL..."
+sudo systemctl start postgresql
+
+echo "[INFO] Waiting for PostgreSQL to become ready..."
+for i in {1..40}; do
+    if pg_isready -q -p $PORT; then
+        echo "[INFO] PostgreSQL is ready."
+        break
+    fi
+    sleep 0.5
+done
+
+if ! pg_isready -q -p $PORT; then
+    echo "[ERROR] PostgreSQL did not start properly. Check logs with:"
+    echo "       sudo journalctl -u postgresql -xe"
+    exit 1
+fi
+
+echo "[INFO] PostgreSQL is running on port $PORT"
+
+# --- CREATE USER ---
+echo "[INFO] Creating database user if not exist..."
+USER_EXISTS=$(sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='$DB_USER'" -p $PORT)
+if [[ $USER_EXISTS != "1" ]]; then
+    echo "[INFO] User $DB_USER does not exist. Creating..."
+    sudo -u postgres psql -p $PORT -c "CREATE ROLE \"$DB_USER\" LOGIN PASSWORD '$DB_PASSWORD';"
+else
+    echo "[INFO] User $DB_USER already exists. Skipping creation."
+fi
+
+# --- CREATE DATABASE ---
+DB_EXISTS=$(sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'" -p $PORT)
+if [[ $DB_EXISTS != "1" ]]; then
+    echo "[INFO] Database $DB_NAME does not exist. Creating..."
+    sudo -u postgres psql -p $PORT -c "CREATE DATABASE \"$DB_NAME\" OWNER \"$DB_USER\";"
+else
+    echo "[INFO] Database $DB_NAME already exists. Skipping creation."
+fi
+
+# --- CREATE TABLES ---
+echo "[INFO] Creating tables..."
+sudo -u postgres psql -d "$DB_NAME" -p $PORT <<'EOF'
+CREATE TABLE IF NOT EXISTS "time"(id BIGSERIAL PRIMARY KEY, created TIMESTAMPTZ NOT NULL, updated TIMESTAMPTZ NOT NULL);
+CREATE TABLE IF NOT EXISTS note (id BIGSERIAL PRIMARY KEY, notes TEXT, prev_notes TEXT, prev_prev_notes TEXT, time_id bigint NOT NULL REFERENCES "time"(id));
+CREATE TABLE IF NOT EXISTS file (id BIGSERIAL PRIMARY KEY, path TEXT NOT NULL UNIQUE, basename TEXT NOT NULL, directory TEXT NOT NULL, size bigint NOT NULL, mtime TIMESTAMPTZ NOT NULL);
+CREATE TABLE IF NOT EXISTS checksum (id BIGSERIAL PRIMARY KEY, file_id bigint NOT NULL REFERENCES file(id), checksum_sha256 TEXT NOT NULL, checksum_sha3 TEXT NOT NULL, checksum_blake_2b TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS monitored_directory (id SERIAL PRIMARY KEY, path TEXT NOT NULL UNIQUE, is_active BOOLEAN NOT NULL DEFAULT TRUE, time_id bigint NOT NULL REFERENCES "time"(id), last_scanned TIMESTAMPTZ, note_id bigint NOT NULL REFERENCES note(id), baseline_established BOOLEAN NOT NULL DEFAULT FALSE, include_subdirectories BOOLEAN NOT NULL DEFAULT TRUE);
+CREATE TABLE IF NOT EXISTS scan (id SERIAL PRIMARY KEY, scan_time_id bigint NOT NULL REFERENCES "time"(id), status TEXT NOT NULL, note_id bigint NOT NULL REFERENCES note(id), monitored_directory_id INTEGER NOT NULL REFERENCES monitored_directory(id), is_baseline_scan BOOLEAN NOT NULL);
+CREATE TABLE IF NOT EXISTS scan_summary (id BIGSERIAL PRIMARY KEY, scan_id INTEGER NOT NULL REFERENCES scan(id), file_id bigint NOT NULL REFERENCES file(id), checksum_id bigint NOT NULL REFERENCES checksum(id));
+CREATE TABLE IF NOT EXISTS diff (id BIGSERIAL PRIMARY KEY, baseline_id bigint NOT NULL REFERENCES scan_summary(id), integrity_fail_id bigint NOT NULL REFERENCES scan_summary(id), time_id bigint NOT NULL REFERENCES "time"(id));
+CREATE TABLE IF NOT EXISTS auth(id SERIAL PRIMARY KEY, hash TEXT NOT NULL, auth_time bigint REFERENCES "time"(id) NOT NULL);
+CREATE TABLE IF NOT EXISTS "user_"(id SERIAL PRIMARY KEY, username TEXT UNIQUE NOT NULL, auth_id int REFERENCES auth(id) NOT NULL, user_time bigint REFERENCES "time"(id) NOT NULL);
+CREATE TABLE IF NOT EXISTS license(id INT PRIMARY KEY, license_data TEXT);
+INSERT INTO license (id,license_data) VALUES
+(1,'331cd7b3ce491feda6e855dcbf5de4dec5d5211e7776c8e7da4a91026ddab7b7'),
+(2,'71b16c484b415c32e6139f95d7276ea351228fbef0af5f7dcbd8bff0484b59b5')
+ON CONFLICT DO NOTHING;
+EOF
+
+# --- SET TABLE & DB OWNERSHIP ---
+TABLES=(time note file checksum monitored_directory scan scan_summary diff auth user_ license)
+for t in "${TABLES[@]}"; do
+    sudo -u postgres psql -d "$DB_NAME" -p $PORT -c "ALTER TABLE IF EXISTS \"$t\" OWNER TO \"$DB_USER\";"
+done
+sudo -u postgres psql -p $PORT -c "ALTER DATABASE \"$DB_NAME\" OWNER TO \"$DB_USER\";"
+
+echo "[INFO] PostgreSQL setup complete with SSL!"
+
+# --- ENV VARIABLES ---
+echo "[INFO] Setting environment variables..."
+declare -A ENV_VARS=(
+  ["TRUSTSTORE_FIS_GUI"]="my_custom_value"
+  ["ssl_file_integrity_scanner"]="my_custom_value"
+  ["INTEGRITY_HASH_DB_USER"]="$DB_USER"
+  ["INTEGRITY_HASH_DB_PASSWORD"]="$DB_PASSWORD"
+)
+
+for key in "${!ENV_VARS[@]}"; do
+    value="${ENV_VARS[$key]}"
+    export "$key=$value"
+    if ! grep -q "$key" ~/.bashrc; then
+        echo "export $key=\"$value\"" >> ~/.bashrc
+    fi
+done
+
+echo ""
+echo "======================================================"
+echo " Installation complete!"
+echo " Connect using: psql -d $DB_NAME -U $DB_USER -h localhost -p $PORT -W"
+echo "======================================================"
+
