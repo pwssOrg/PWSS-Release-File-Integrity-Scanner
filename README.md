@@ -1,5 +1,5 @@
 # PWSS Release Repository
-![samuel-regan-asante-uE4gXrpDzxw-unsplash](https://github.com/pwssOrg/PWSS-Release-File-Integrity-Scanner/blob/linux_install_script_ubuntu/.github/assets/images/samuel-regan-asante-uE4gXrpDzxw-unsplash.jpg?raw=true)
+![samuel-regan-asante-uE4gXrpDzxw-unsplash](https://github.com/pwssOrg/PWSS-Release-File-Integrity-Scanner/blob/master/.github/assets/images/samuel-regan-asante-uE4gXrpDzxw-unsplash.jpg?raw=true)
 
 
 Welcome to the official release repository of PWSS. This repository contains the
@@ -31,7 +31,7 @@ If you don't have a license key or the SSL passwords, please [contact PWSS repre
 
 
  <a href="https://github.com/orgs/pwssOrg/discussions/categories/pwss-release-repository">
-<img alt="Project forum" src="https://github.com/pwssOrg/PWSS-Release-File-Integrity-Scanner/blob/linux_install_script_ubuntu/.github/assets/images/ryan-byrne-9tnUpg4wFWA-unsplash.jpg?raw=true"/></a>
+<img alt="Project forum" src="https://github.com/pwssOrg/PWSS-Release-File-Integrity-Scanner/blob/master/.github/assets/images/ryan-byrne-9tnUpg4wFWA-unsplash.jpg?raw=true"/></a>
 
 
 ## Custom Package
@@ -54,7 +54,7 @@ Double click on install.bat
 ```
 
  <a href="https://pwss.dev">
-<img alt="maria-cappelli" src="https://github.com/pwssOrg/PWSS-Release-File-Integrity-Scanner/blob/linux_install_script_ubuntu/.github/assets/images/maria-cappelli-26YOSbRw65A-unsplash.jpg?raw=true" />
+<img alt="maria-cappelli" src="https://github.com/pwssOrg/PWSS-Release-File-Integrity-Scanner/blob/master/.github/assets/images/maria-cappelli-26YOSbRw65A-unsplash.jpg?raw=true" />
  </a>
 
 
