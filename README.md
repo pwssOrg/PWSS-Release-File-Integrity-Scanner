@@ -1,7 +1,8 @@
 # PWSS Release Repository
-![samuel-regan-asante-uE4gXrpDzxw-unsplash](https://github.com/pwssOrg/PWSS-Release-File-Integrity-Scanner/blob/linux_install_script_ubuntu/.github/assets/images/samuel-regan-asante-uE4gXrpDzxw-unsplash.jpg?raw=true)
 
-
+ <a href="https://github.com/orgs/pwssOrg/discussions/categories/pwss-release-repository">
+<img alt="Project Forum" src="https://github.com/pwssOrg/PWSS-Release-File-Integrity-Scanner/blob/linux_install_script_ubuntu/.github/assets/images/samuel-regan-asante-uE4gXrpDzxw-unsplash.jpg?raw=true" />
+ </a>
 
 Welcome to the official release repository of PWSS. This repository contains the
 artifact and installation scripts for our web security solution.
