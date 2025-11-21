@@ -51,8 +51,10 @@ Provide a brief description of how to use your project, including example comman
 # Install on Windows 11
 Double click on install.bat
 ```
-![maria-cappelli-26YOSbRw65A-unsplash](https://github.com/user-attachments/assets/57d1a569-ad6a-4676-9095-8809362d3ac0)
 
+ <a href="https://pwss.dev">
+<img alt="maria-cappelli" src="https://github.com/user-attachments/assets/57d1a569-ad6a-4676-9095-8809362d3ac0" />
+ </a>
 
 
 ## Contact
