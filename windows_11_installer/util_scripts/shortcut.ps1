@@ -1,12 +1,12 @@
-# Version: 1
-# Date: November 14, 2025
+# Version: 1.1
+# Date: November 21, 2025
 # Author:  © PWSS Org
 
 $scriptDirectory = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Path)
 
 function Create-Shortcut {
 
-$exePath = "$scriptDirectory\..\..\file_integrity_scanner_app\integrity.exe"
+$exePath = "$scriptDirectory\..\..\file_integrity_scanner_app\windows\integrity.exe"
 $shortcutPath = [Environment]::GetFolderPath("Desktop") + "\Integrity.lnk"
 
 # Check if the executable exists

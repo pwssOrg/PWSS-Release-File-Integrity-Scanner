@@ -1,5 +1,5 @@
-# Version: 1.8
-# Date: November 18, 2025
+# Version: 1.9
+# Date: November 21, 2025
 # Author:  © PWSS Org
 
 
@@ -32,7 +32,7 @@ function Start-DB-If-Not-Running {
 
 try{
 
-$hashVerifyIntegrity = (Get-FileHash -Algorithm "SHA256" "$scriptDirectory\..\verify_integrity\verify_integrity.ps1").Hash
+$hashVerifyIntegrity = (Get-FileHash -Algorithm "SHA256" "$scriptDirectory\..\..\verify_integrity\verify_integrity.ps1").Hash
 if($hashVerifyIntegrity -eq "FEF0BEE337EA4658699F62C69BF536DCBF22415F9688F0E11B6A4F3DC1110BD1"){
 
 # Write-Host -ForegroundColor Green "The file (verify_integrity.ps1) hash matches the expected SHA256."
@@ -45,9 +45,9 @@ else {
 }
 
 
-. "$scriptDirectory\..\verify_integrity\verify_integrity.ps1"
+. "$scriptDirectory\..\..\verify_integrity\verify_integrity.ps1"
 
-$fileIntegrityScannerJar = "$scriptDirectory\local_backend\File-Integrity-Scanner-1.8.1.jar"
+$fileIntegrityScannerJar = "$scriptDirectory\..\local_backend\File-Integrity-Scanner-1.8.1.jar"
 $expectedSha256FileIntegrityScannerJar = "9D15F2A6F89CC1C37A31DB3FCCF404ED4CAF60FABB55BC9CAAB4D97B0267293D"
 
 if (Verify-SHA256 -FilePath $fileIntegrityScannerJar -ExpectedHash $expectedSha256FileIntegrityScannerJar) {
@@ -59,7 +59,7 @@ if (Verify-SHA256 -FilePath $fileIntegrityScannerJar -ExpectedHash $expectedSha2
 
 }
 
-$integrityHashJar = "$scriptDirectory\frontend\integrity_hash-1.1.jar"
+$integrityHashJar = "$scriptDirectory\..\frontend\integrity_hash-1.1.jar"
 $expectedSha256IntegrityHashJar = "74D77E5BE4BE475400A52884B5461E04FCB3FB732B982EFC1EA2D7D08A1F2CB3"
 
 if (Verify-SHA256 -FilePath $integrityHashJar -ExpectedHash $expectedSha256IntegrityHashJar) {
@@ -87,7 +87,7 @@ Start-DB-If-Not-Running
 $portInUse = netstat -ano | Select-String ":15400"
 
 # Set the working path to the frontend folder (Integrity Hash needs to point to the correct path for app settings and options folder)
-cd "$scriptDirectory\frontend"
+cd "$scriptDirectory\..\frontend"
 
 
 if ($null -eq $portInUse) {

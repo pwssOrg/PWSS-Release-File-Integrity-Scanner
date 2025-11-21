@@ -1,4 +1,15 @@
-#!/bin/bash
+#! /bin/bash
+<< Script_Information
+Created: November-2025
+Purpose: Script used for installing Integrity Hash
+Script_Version:1
+Script_Information
+
+: '
+This script will install Integrity Hash on your computer. It will download Java (jdk) (if needed) and Postgres SQL. 
+Please note , if you have an existing Postgres installation - Talk to PWSS Representants before running it. In that case , 
+it may be a better option to insert the tables manually into your database
+'
 set -euo pipefail
 
 echo "======================================================"
@@ -8,8 +19,7 @@ echo "======================================================"
 echo "======================================================"
 echo "        PostgreSQL + Java Automated Installer        "
 echo "======================================================"
-
-### --- INTERAKTIV JAVA INSTALLATION ---
+### --- INTERACTIVE JAVA INSTALLATION ---
 read -p "Do you want to install Java (JDK 25 or JDK 21)? [y/N]: " INSTALL_JAVA
 
 if [[ "$INSTALL_JAVA" =~ ^[Yy]$ ]]; then
@@ -163,22 +173,41 @@ sudo -u postgres psql -p $PORT -c "ALTER DATABASE \"$DB_NAME\" OWNER TO \"$DB_US
 
 echo "[INFO] PostgreSQL setup complete with SSL!"
 
-# --- ENV VARIABLES ---
-echo "[INFO] Setting environment variables..."
-declare -A ENV_VARS=(
-  ["TRUSTSTORE_FIS_GUI"]="my_custom_value"
-  ["ssl_file_integrity_scanner"]="my_custom_value"
-  ["INTEGRITY_HASH_DB_USER"]="$DB_USER"
-  ["INTEGRITY_HASH_DB_PASSWORD"]="$DB_PASSWORD"
-)
+# --- Set Enviroment for Integrity Hash ---
+TRUSTSTORE_FIS_GUI="truststore_mock_value"
+ssl_file_integrity_scanner="ssl_mock_value"
 
-for key in "${!ENV_VARS[@]}"; do
-    value="${ENV_VARS[$key]}"
-    export "$key=$value"
-    if ! grep -q "$key" ~/.bashrc; then
-        echo "export $key=\"$value\"" >> ~/.bashrc
-    fi
-done
+# --- SET Execution permissons for Integrity Hash files ---
+FILE_PATH="setup_enviroment/integrity_hash_enviroment"
+# Check if integrity_hash_enviroment exists
+if [[ -f "$FILE_PATH" ]]; then
+  # Check if integrity_hash_enviroment is executable
+  if [[ ! -x "$FILE_PATH" ]]; then
+
+   sudo chmod +x "$FILE_PATH"
+  fi
+else
+  echo "Error: File '$FILE_PATH' does not exist."
+fi
+
+FILE_PATH_2="../file_integrity_scanner_app/linux/start_integrity_hash"
+
+# Check if start_integrity_hash exists
+if [[ -f "$FILE_PATH_2" ]]; then
+  # Check if start_integrity_hash is executable
+  if [[ ! -x "$FILE_PATH_2" ]]; then
+
+   sudo chmod +x "$FILE_PATH_2"
+  fi
+else
+  echo "Error: File '$FILE_PATH_2' does not exist."
+fi
+
+
+echo "[INFO] Setting environment variables and aliases..."
+bash setup_enviroment/integrity_hash_enviroment $(realpath ../file_integrity_scanner_app/) $DB_USER $DB_PASSWORD $TRUSTSTORE_FIS_GUI $ssl_file_integrity_scanner
+
+echo -e "\e[34mPlease remember to restart your console / terminal before starting Integrity Hash\e[0m"
 
 echo ""
 echo "======================================================"
