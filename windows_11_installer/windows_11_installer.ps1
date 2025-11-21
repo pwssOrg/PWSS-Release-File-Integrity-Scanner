@@ -49,7 +49,7 @@ else {
 }
 
 $shortcutScript = ".\util_scripts\shortcut.ps1"
-$expectedSha256ShortcutScript = "B159E12FB26F2C0AFCDB64E50E5EBABA2BB9740FD6EF7999CB3B240355A4790E"
+$expectedSha256ShortcutScript = "AEE3F9997C084928ED6FEAEA53EDC0E95794EB5FD7CE70CE1B6B82DA55AFA324"
 
 if (Verify-SHA256 -FilePath $shortcutScript -ExpectedHash $expectedSha256ShortcutScript) {
     Write-Host -ForegroundColor Green "The file (shortcut.ps1) hash matches the expected SHA256."

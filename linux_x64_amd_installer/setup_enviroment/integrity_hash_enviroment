@@ -1,0 +1,66 @@
+#!/usr/bin/bash
+<< Script_Information
+Created: November-2025
+Purpose: Script used for setting the environment for Integrity Hash
+Input Arg: 1 Integrity Hash Release Folder Path
+Input Arg: 2. Integrity Hash DB User
+Input Arg: 3. Integrity Hash DB Password
+Input Arg: 4. FE Truststore Password
+Input Arg: 5. Local BE SSL Password
+
+
+This script adds 5 environment variables and 3 aliases for Integrity Hash to the user's .bashrc file.
+If they already exist, the script will remove the existing Integrity Hash aliases and replace them.
+Four of the environment variables are based on the input arguments, while one is set internally within the script.
+Script_Information
+
+Version="Integrity Hash v1.1"
+
+#Paths
+integrity_hash_install_path=$1
+integrity_hash_linux_path=${integrity_hash_install_path}"/linux/"
+
+#Aliases
+start_integrity_hash="alias integrity_hash='cd $integrity_hash_linux_path && bash start_integrity_hash'"
+integrity_hash_version_alias="alias integrity_hash_version='echo $Version'"
+jump_to_folder_for_integrity_hash_release_alias="alias integrity_hash_path='cd $integrity_hash_install_path && ls -lt'"
+
+# Enviroment variables
+integrity_hash_app_folder_env="export integrity_hash_app_folder='$1'"
+INTEGRITY_HASH_DB_USER_env="export INTEGRITY_HASH_DB_USER='$2'"
+INTEGRITY_HASH_DB_PASSWORD_env="export INTEGRITY_HASH_DB_PASSWORD='$3'"
+TRUSTSTORE_FIS_GUI_env="export TRUSTSTORE_FIS_GUI='$4'"
+ssl_file_integrity_scanner_env="export ssl_file_integrity_scanner='$5'"
+
+## Check if the aliases are contained in .bashrc already
+is_already_existing=$(cat ~/.bashrc | grep -e "$Version")
+length="${#is_already_existing}"
+echo $lenght
+## If case
+case $length in
+        0)
+                ## Substitue old Integrity Hash aliases and enviroment variables
+                awk '!/alias integrity_hash/' ~/.bashrc > tmpfile && mv tmpfile ~/.bashrc
+                awk '!/alias integrity_hash_version/' ~/.bashrc  > tmpfile && mv tmpfile ~/.bashrc
+                awk '!/alias integrity_hash_path/' ~/.bashrc > tmpfile && mv tmpfile ~/.bashrc
+                awk '!/export INTEGRITY_HASH_DB_USER/' ~/.bashrc > tmpfile && mv tmpfile ~/.bashrc
+                awk '!/export INTEGRITY_HASH_DB_PASSWORD/' ~/.bashrc > tmpfile && mv tmpfile ~/.bashrc
+                awk '!/export TRUSTSTORE_FIS_GUI/' ~/.bashrc > tmpfile && mv tmpfile ~/.bashrc
+		awk '!/export ssl_file_integrity_scanner/' ~/.bashrc > tmpfile && mv tmpfile ~/.bashrc
+		awk '!/export integrity_hash_app_folder/' ~/.bashrc > tmpfile && mv tmpfile ~/.bashrc
+                echo -e "\033[1;32m Setting up your environment for Integrity Hash \033[0m"
+                echo -e "$start_integrity_hash" >> ~/.bashrc
+                echo -e "$integrity_hash_version_alias" >> ~/.bashrc
+                echo -e "$jump_to_folder_for_integrity_hash_release_alias" >> ~/.bashrc
+                echo -e "$integrity_hash_app_folder_env" >> ~/.bashrc
+                echo -e "$INTEGRITY_HASH_DB_USER_env" >> ~/.bashrc
+                echo -e "$INTEGRITY_HASH_DB_PASSWORD_env" >> ~/.bashrc
+		echo -e "$TRUSTSTORE_FIS_GUI_env" >> ~/.bashrc
+		echo -e "$ssl_file_integrity_scanner_env" >> ~/.bashrc
+                ;;
+
+        *)
+                echo Integrity Hash commands are already installed on your system
+                ;;
+
+esac
