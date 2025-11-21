@@ -21,8 +21,8 @@ echo "Local backend Java app started with PID $pid"
 
 start_frontend_app(){
 
-file_path=${integrity_hash_app_folder}"/frontend/integrity_hash-1.1.jar"
-expected_hash="74d77e5be4be475400a52884b5461e04fcb3fb732b982efc1ea2d7d08a1f2cb3"
+file_path=${integrity_hash_app_folder}"/frontend/integrity_hash-1.2.jar"
+expected_hash="d56499883018d4d4373822323d07ab2bd894fee9cbee404aa67b5aa72a6c2d1e"
 check_file_hash "$file_path" "$expected_hash"
 # Set working directory to the frontend app
 cd ${integrity_hash_app_folder}"/frontend"
