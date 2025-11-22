@@ -62,6 +62,6 @@ Double click on install.bat
 
 For any inquiries regarding license keys, SSL passwords, or custom packages, please contact our sales team at:
 
-**Email:** support@pwss.com
+**Email:** support@pwss.dev
 
 ---
