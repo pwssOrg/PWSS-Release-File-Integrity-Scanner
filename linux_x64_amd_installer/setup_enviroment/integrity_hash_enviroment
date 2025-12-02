@@ -14,7 +14,7 @@ If they already exist, the script will remove the existing Integrity Hash aliase
 Four of the environment variables are based on the input arguments, while one is set internally within the script.
 Script_Information
 
-Version="Integrity Hash v1.1"
+Version="Integrity Hash v1.2"
 
 #Paths
 integrity_hash_install_path=$1
