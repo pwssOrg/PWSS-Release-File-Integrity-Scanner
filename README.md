@@ -51,12 +51,13 @@ Provide a brief description of how to use your project, including example comman
 
 # Install on Windows 11
 Double click on install.bat
-```
 
 # Install on Mac OS 
 Please contact our sales team at sales@pwss.dev
+Installation not supported on macOS < 10.15 (Catalina)
 ```
-<small>Installation not supported on macOS < 10.15 (Catalina) </small>
+
+
 
 
 
