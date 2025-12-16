@@ -51,7 +51,15 @@ Provide a brief description of how to use your project, including example comman
 
 # Install on Windows 11
 Double click on install.bat
+
+# Install on Mac OS 
+Please contact our sales team at sales@pwss.dev
+Installation not supported on macOS < 10.15 (Catalina)
 ```
+
+
+
+
 
  <a href="https://pwss.dev">
 <img alt="maria-cappelli" src="https://github.com/pwssOrg/PWSS-Release-File-Integrity-Scanner/blob/master/.github/assets/images/maria-cappelli-26YOSbRw65A-unsplash.jpg?raw=true" />

@@ -1,5 +1,5 @@
-# Version: 1.9.1
-# Date: November 21, 2025
+# Version: 1.9.2
+# Date: Dec 16, 2025
 # Author:  © PWSS Org
 
 
@@ -47,13 +47,13 @@ else {
 
 . "$scriptDirectory\..\..\verify_integrity\verify_integrity.ps1"
 
-$fileIntegrityScannerJar = "$scriptDirectory\..\local_backend\File-Integrity-Scanner-1.8.1.jar"
-$expectedSha256FileIntegrityScannerJar = "9D15F2A6F89CC1C37A31DB3FCCF404ED4CAF60FABB55BC9CAAB4D97B0267293D"
+$fileIntegrityScannerJar = "$scriptDirectory\..\local_backend\File-Integrity-Scanner-1.8.2.jar"
+$expectedSha256FileIntegrityScannerJar = "2304951110D6A8B8965499E4BF87D2A10617818AA3EF618387E9DD178554B7FB"
 
 if (Verify-SHA256 -FilePath $fileIntegrityScannerJar -ExpectedHash $expectedSha256FileIntegrityScannerJar) {
-    # Write-Host -ForegroundColor Green "The file (File-Integrity-Scanner-1.8.1.jar) hash matches the expected SHA256."
+    # Write-Host -ForegroundColor Green "The file (File-Integrity-Scanner-1.8.2.jar) hash matches the expected SHA256."
 } else {
-    Write-Host -ForegroundColor Red "The file (File-Integrity-Scanner-1.8.1.jar) hash does NOT match the expected SHA256."
+    Write-Host -ForegroundColor Red "The file (File-Integrity-Scanner-1.8.2.jar) hash does NOT match the expected SHA256."
     Contact-Message
     exit
 
@@ -94,7 +94,7 @@ if ($null -eq $portInUse) {
     # Write-Host "Nothing is running on port 15400. Starting the process..."
 
     
-    Start-Process -FilePath "java" -ArgumentList "-jar", ".\..\local_backend\File-Integrity-Scanner-1.8.1.jar" -NoNewWindow
+    Start-Process -FilePath "java" -ArgumentList "-jar", ".\..\local_backend\File-Integrity-Scanner-1.8.2.jar" -NoNewWindow
     # Write-Host "File-Integrity-Scanner started."
     
     Start-Process -FilePath "java" `
