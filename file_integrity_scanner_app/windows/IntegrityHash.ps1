@@ -1,5 +1,5 @@
-# Version: 1.3.1
-# Date: Jan 3, 2026
+# Version: 1.4
+# Date: February 4, 2026
 # Author:  © PWSS Org
 
 
@@ -47,25 +47,25 @@ else {
 
 . "$scriptDirectory\..\..\verify_integrity\verify_integrity.ps1"
 
-$fileIntegrityScannerJar = "$scriptDirectory\..\local_backend\File-Integrity-Scanner-1.8.3.jar"
-$expectedSha256FileIntegrityScannerJar = "671976BB694E0D9F3C5F24ACA69133B572FC42EE474A8B58FDCEB8F24C2CCBC0"
+$fileIntegrityScannerJar = "$scriptDirectory\..\local_backend\File-Integrity-Scanner-1.8.4.jar"
+$expectedSha256FileIntegrityScannerJar = "59279050C553D5665CF24745426C387BC19BAF5AFF414027FFECAE4E4B1B0610"
 
 if (Verify-SHA256 -FilePath $fileIntegrityScannerJar -ExpectedHash $expectedSha256FileIntegrityScannerJar) {
-    # Write-Host -ForegroundColor Green "The file (File-Integrity-Scanner-1.8.3.jar) hash matches the expected SHA256."
+    # Write-Host -ForegroundColor Green "The file (File-Integrity-Scanner-1.8.4.jar) hash matches the expected SHA256."
 } else {
-    Write-Host -ForegroundColor Red "The file (File-Integrity-Scanner-1.8.3.jar) hash does NOT match the expected SHA256."
+    Write-Host -ForegroundColor Red "The file (File-Integrity-Scanner-1.8.4.jar) hash does NOT match the expected SHA256."
     Contact-Message
     exit
 
 }
 
-$integrityHashJar = "$scriptDirectory\..\frontend\integrity_hash-1.2.1.jar"
-$expectedSha256IntegrityHashJar = "509A812D2B11314758D8FD6D7DBDAC84F8E86E02FBF2A19426159223F0C58760"
+$integrityHashJar = "$scriptDirectory\..\frontend\integrity_hash-1.2.2.jar"
+$expectedSha256IntegrityHashJar = "B459CDE2EC1CA24C46CC987C6FB3FF314FB36B524872FDF08A3C5C1A88AC43E2"
 
 if (Verify-SHA256 -FilePath $integrityHashJar -ExpectedHash $expectedSha256IntegrityHashJar) {
-    # Write-Host -ForegroundColor Green "The file (integrity_hash-1.2.1.jar) hash matches the expected SHA256."
+    # Write-Host -ForegroundColor Green "The file (integrity_hash-1.2.2.jar) hash matches the expected SHA256."
 } else {
-    Write-Host -ForegroundColor Red "The file (integrity_hash-1.2.1.jar) hash does NOT match the expected SHA256."
+    Write-Host -ForegroundColor Red "The file (integrity_hash-1.2.2.jar) hash does NOT match the expected SHA256."
     Contact-Message
     exit
 
@@ -94,18 +94,18 @@ if ($null -eq $portInUse) {
     # Write-Host "Nothing is running on port 15400. Starting the process..."
 
     
-    Start-Process -FilePath "java" -ArgumentList "-jar", ".\..\local_backend\File-Integrity-Scanner-1.8.3.jar" -NoNewWindow
+    Start-Process -FilePath "java" -ArgumentList "-jar", ".\..\local_backend\File-Integrity-Scanner-1.8.4.jar" -NoNewWindow
     # Write-Host "File-Integrity-Scanner started."
     
     Start-Process -FilePath "java" `
-    -ArgumentList "-jar `".\integrity_hash-1.2.1.jar`"" `
+    -ArgumentList "-jar `".\integrity_hash-1.2.2.jar`"" `
     -NoNewWindow `
     -Wait
     Stop-Process -Id $pid
 } else {
    # Write-Host "File-Integrity-Scanner is already running on port 15400."
    Start-Process -FilePath "java" `
-    -ArgumentList "-jar `".\integrity_hash-1.2.1.jar`"" `
+    -ArgumentList "-jar `".\integrity_hash-1.2.2.jar`"" `
     -NoNewWindow `
     -Wait
    Stop-Process -Id $pid 
