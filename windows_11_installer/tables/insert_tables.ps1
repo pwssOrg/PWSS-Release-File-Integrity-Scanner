@@ -1,6 +1,6 @@
 # Author:  © PWSS Org
-# Date: November 13, 2025
-# Version: 1.2
+# Date: February 4, 2026
+# Version: 1.3
 
 
 function insert-tables {
@@ -94,8 +94,8 @@ CREATE TABLE license(
 id INT PRIMARY KEY,
 license_data TEXT);
 INSERT INTO license (id,license_data) VALUES
-(1,'331cd7b3ce491feda6e855dcbf5de4dec5d5211e7776c8e7da4a91026ddab7b7'),
-(2,'71b16c484b415c32e6139f95d7276ea351228fbef0af5f7dcbd8bff0484b59b5');
+(1,'b289ab93856e4e3411dbbc79f151c727aba2621be5a61c27686d5410eb5ca8ac'),
+(2,'31a084dcff2e114d601027eb1f3137faaaa1d07e452960759a73064f72d2292a');
 "@
 
 # Write the SQL script to a temporary file

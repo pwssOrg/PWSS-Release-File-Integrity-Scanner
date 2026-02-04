@@ -1,5 +1,5 @@
-# Version: 1
-# Date: November 15, 2025
+# Version: 1.1
+# Date: February 4, 2026
 # Description: 
 # 1. Ask the User if the need to install OpenJDK 25
 # 2. Downloading and extracting the PostgreSQL installer.
@@ -37,7 +37,7 @@ else {
 }
 
 $insertTablesScript = ".\tables\insert_tables.ps1"
-$expectedSha256InsertTablesScript = "7798372AE9E2BADF146D15275C6E944729E7BAE149CD8C2CB63592B3946649EE"
+$expectedSha256InsertTablesScript = "8B973E93174AAA0597476969A3C35A93AE5F11771FAF3844B011CE2D03183F07"
 
 if (Verify-SHA256 -FilePath $insertTablesScript -ExpectedHash $expectedSha256InsertTablesScript) {
     Write-Host -ForegroundColor Green "The file (insert_tables.ps1) hash matches the expected SHA256."
