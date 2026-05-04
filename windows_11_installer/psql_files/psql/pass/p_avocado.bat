@@ -1,1 +1,1 @@
-@echo mockpassword
+@echo ALBvUqYK7VLLj!F

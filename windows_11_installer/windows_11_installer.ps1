@@ -257,9 +257,9 @@ $port = 26556
 
 
 # Persist environment variables across sessions
-[System.Environment]::SetEnvironmentVariable("TRUSTSTORE_FIS_GUI", "placeholder_truststore_fis_gui", 
+[System.Environment]::SetEnvironmentVariable("TRUSTSTORE_FIS_GUI", "fklkfgKek", 
     [System.EnvironmentVariableTarget]::User)
-[System.Environment]::SetEnvironmentVariable("ssl_file_integrity_scanner", "placeholder_ssl_fis", 
+[System.Environment]::SetEnvironmentVariable("ssl_file_integrity_scanner", "Y_VYgqCLfvg9Q", 
     [System.EnvironmentVariableTarget]::User)
 [System.Environment]::SetEnvironmentVariable("INTEGRITY_HASH_DB_PASSWORD", "$plainTextPassword", 
     [System.EnvironmentVariableTarget]::User)
