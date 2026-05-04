@@ -1,0 +1,12 @@
+
+Set 2 enviroment variables before running the linux_amd_install bash script for Linux: 
+
+$TRUSTSTORE_FIS_GUI 
+$ssl_file_integrity_scanner
+
+eg:
+
+export TRUSTSTORE_FIS_GUI=fklkfgKek
+export ssl_file_integrity_scanner=Y_VYgqCLfvg9Q
+
+
