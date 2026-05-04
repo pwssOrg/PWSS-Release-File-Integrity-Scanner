@@ -1,6 +1,9 @@
 # Information
-- The password is mocked and not a real one. 
-- Replace with the real password for the install script to work!
+
+Open Source
+
+Please make your own certificates if you want to use unique ones!
+
 
 
 
