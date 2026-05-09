@@ -18,17 +18,7 @@ artifact and installation scripts for our web security solution. Feel free to us
 ## About PWSS
 
 PWSS offers a comprehensive web security solution designed to protect your online assets from various cyber threats.
-It offers advanced features such as file integrity scanning, full scan history in persistent storage, and enhanced resistance against quantum computing attacks (Y). 
-
-## Prerequisites
-
-To run this application, you will need:
-
-1. **License Key**: A valid license key for the software.
-2. **SSL Passwords**: The SSL passwords needed to establish secure connections.
-
-If you don't have a license key or the SSL passwords, please [contact PWSS representatives](#contact).
-
+It offers advanced features such as file integrity scanning, full scan history in persistent storage, and enhanced resistance against quantum computing attacks. 
 
  <a href="https://github.com/orgs/pwssOrg/discussions/categories/pwss-release-repository">
 <img alt="Project forum" src="https://github.com/pwssOrg/PWSS-Release-File-Integrity-Scanner/blob/master/.github/assets/images/ryan-byrne-9tnUpg4wFWA-unsplash.jpg?raw=true"/></a>
