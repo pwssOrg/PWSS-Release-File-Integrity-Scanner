@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 << Script_Information
-Updated: February-2026
+Updated: May-2026
 Purpose: Script used for setting the environment for Integrity Hash
 Input Arg: 1 Integrity Hash Release Folder Path
 Input Arg: 2. Integrity Hash DB User
@@ -14,7 +14,7 @@ If they already exist, the script will remove the existing Integrity Hash aliase
 Four of the environment variables are based on the input arguments, while one is set internally within the script.
 Script_Information
 
-Version="Integrity Hash v1.4"
+Version="Integrity Hash v1.5"
 
 #Paths
 integrity_hash_install_path=$1

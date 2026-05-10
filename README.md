@@ -8,35 +8,22 @@ artifact and installation scripts for our web security solution. Feel free to us
 ## Table of Contents
 
 - [About PWSS](#about-pwss)
-- [Prerequisites](#prerequisites)
-  - [License Key](#license-key)
-  - [SSL Passwords](#ssl-passwords)
-- [Custom Package](#custom-package)
+- [Open Source](#Integrity-Hash-is-now-an-open-source-package)
 - [How to Install](#how-to-install)
 - [Contact](#contact)
 
 ## About PWSS
 
 PWSS offers a comprehensive web security solution designed to protect your online assets from various cyber threats.
-It offers advanced features such as file integrity scanning, full scan history in persistent storage, and enhanced resistance against quantum computing attacks (Y). 
-
-## Prerequisites
-
-To run this application, you will need:
-
-1. **License Key**: A valid license key for the software.
-2. **SSL Passwords**: The SSL passwords needed to establish secure connections.
-
-If you don't have a license key or the SSL passwords, please [contact PWSS representatives](#contact).
-
+It offers advanced features such as file integrity scanning, full scan history in persistent storage, and enhanced resistance against quantum computing attacks. 
 
  <a href="https://github.com/orgs/pwssOrg/discussions/categories/pwss-release-repository">
 <img alt="Project forum" src="https://github.com/pwssOrg/PWSS-Release-File-Integrity-Scanner/blob/master/.github/assets/images/ryan-byrne-9tnUpg4wFWA-unsplash.jpg?raw=true"/></a>
 
 
-## Integrity Hash is now an open source Package
+## Integrity Hash is now an open-source package
 
- The correct SSL passwords are now included in the install script, and an open-source license key is available for you in the windows 11 install guide. We will be happy to assist you if you have any inquiries for PWSS :)
+The correct SSL passwords and an open-source license key are now included in the installation script. We will be happy to assist you if you have any inquiries regarding PWSS. 🙂
 
 
 ## How to Install

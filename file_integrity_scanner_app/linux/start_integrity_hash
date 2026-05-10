@@ -1,17 +1,17 @@
 #! /bin/bash
 << Script_Information
-Updated: Januari-2026
+Updated: May-2026
 Purpose: Script used for Starting the Integrity Hash application
 
 This script will Start the Integrity Hash frontend app and the local File-Integrity Scannner backend.
 In addition - it will validate the SHA256 hashes of those two artifacts. Integrity Hash is a completly
 offline application. PWSS Values the privacy and integrity of your private files.
 
-Script Version:1.3.1
+Script Version:1.3.2
 Script_Information
 start_local_server_in_background(){
-file_path=${integrity_hash_app_folder}"/local_backend/File-Integrity-Scanner-1.8.3.jar"
-expected_hash="671976bb694e0d9f3c5f24aca69133b572fc42ee474a8b58fdceb8f24c2ccbc0"
+file_path=${integrity_hash_app_folder}"/local_backend/File-Integrity-Scanner-1.8.5.jar"
+expected_hash="ae8b2900e402a24268c5b1e31c49f1e613dfc3c27013bc98851d9dcfe3b762be"
 check_file_hash "$file_path" "$expected_hash"
 java -jar "$file_path" &
 
@@ -21,8 +21,8 @@ echo "Local backend Java app started with PID $pid"
 
 start_frontend_app(){
 
-file_path=${integrity_hash_app_folder}"/frontend/integrity_hash-1.2.1.jar"
-expected_hash="509a812d2b11314758d8fd6d7dbdac84f8e86e02fbf2a19426159223f0c58760"
+file_path=${integrity_hash_app_folder}"/frontend/integrity_hash-1.2.3.jar"
+expected_hash="e04ca51dde652cc70db6cdb96e0baca591e3bdc76dafd117cb21804a23c9e5d8"
 check_file_hash "$file_path" "$expected_hash"
 # Set working directory to the frontend app
 cd ${integrity_hash_app_folder}"/frontend"
