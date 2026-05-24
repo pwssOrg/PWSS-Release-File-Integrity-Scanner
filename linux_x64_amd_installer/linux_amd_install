@@ -1,8 +1,8 @@
 #! /bin/bash
 << Script_Information
-Updated: February-2026
+Updated: May-2026
 Purpose: Script used for installing Integrity Hash
-Script_Version:1
+Script_Version:1-6
 Script_Information
 
 : '
@@ -62,6 +62,9 @@ echo ""
 
 DB_NAME="integrity_hash"
 PORT=26556
+
+TRUSTSTORE_FIS_GUI="fklkfgKek"
+ssl_file_integrity_scanner="Y_VYgqCLfvg9Q"
 
 echo "[INFO] PostgreSQL Installation & SSL Setup"
 

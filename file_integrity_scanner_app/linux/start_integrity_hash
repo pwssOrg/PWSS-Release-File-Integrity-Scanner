@@ -7,11 +7,11 @@ This script will Start the Integrity Hash frontend app and the local File-Integr
 In addition - it will validate the SHA256 hashes of those two artifacts. Integrity Hash is a completly
 offline application. PWSS Values the privacy and integrity of your private files.
 
-Script Version:1.3.2
+Script Version:1.6
 Script_Information
 start_local_server_in_background(){
-file_path=${integrity_hash_app_folder}"/local_backend/File-Integrity-Scanner-1.8.5.jar"
-expected_hash="ae8b2900e402a24268c5b1e31c49f1e613dfc3c27013bc98851d9dcfe3b762be"
+file_path=${integrity_hash_app_folder}"/local_backend/File-Integrity-Scanner-1.9.jar"
+expected_hash="6680617e08b280ce3912f5ffa6929693cb120956f78263f6438c5bc9c2a8e5c8"
 check_file_hash "$file_path" "$expected_hash"
 java -jar "$file_path" &
 
