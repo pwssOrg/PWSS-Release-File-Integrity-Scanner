@@ -1,3 +1,3 @@
-integrity_hash_enviroment : FB7454AD620DBE48163CCC8F500F76F8F2095F141BAF1846E13A864480DD395E
+integrity_hash_enviroment (Windows line-endings) : 137ACAB45E4CF00CD351B7607C5E01B8C317CBD9BFA7012F0E4EA4D661BBCA25  
 
 Please note that line endings may change the hash!
