@@ -35,7 +35,7 @@ The correct SSL passwords and an open-source license key are now included in the
 Install guide is located in the docs folder
 
 # Install on Windows 11
-Double click on install
+Double click on install_integrity_hash_pwss
 
 
 # Install on Mac OS 
